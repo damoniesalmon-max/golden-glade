@@ -2736,6 +2736,154 @@ function createEVMSCampus(rootScene) {
   campusGroup.add(fountainGroup);
   obstacles.push({ x: fountainPos.x, z: fountainPos.z, radius: 2.7 });
 
+  // 4b. SLEEK BABY BLUE PORSCHE 911 PARKED NEAR THE FOUNTAIN!
+  const porschePos = new THREE.Vector3(7.6, 0.08, 2.6);
+  const porscheGroup = new THREE.Group();
+  porscheGroup.position.copy(porschePos);
+  porscheGroup.rotation.y = -0.72; // Angled hero pose facing the brick walkway!
+
+  const babyBlueMat = new THREE.MeshPhysicalMaterial({
+    color: '#82cdf7',
+    metalness: 0.35,
+    roughness: 0.16,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.08,
+  });
+  const cabinGlassMat = new THREE.MeshPhysicalMaterial({
+    color: '#172230',
+    metalness: 0.35,
+    roughness: 0.08,
+    clearcoat: 0.9,
+  });
+  const tireMat = new THREE.MeshStandardMaterial({ color: '#17191c', roughness: 0.85 });
+  const rimMat = new THREE.MeshStandardMaterial({ color: '#e2e7ee', metalness: 0.88, roughness: 0.2 });
+  const caliperMat = new THREE.MeshStandardMaterial({ color: '#e5b83b', metalness: 0.5, roughness: 0.3 });
+  const headlightMat = new THREE.MeshStandardMaterial({
+    color: '#ffffff',
+    emissive: '#fff4d6',
+    emissiveIntensity: 2.2,
+    roughness: 0.1,
+  });
+  const taillightMat = new THREE.MeshStandardMaterial({
+    color: '#ff2b2b',
+    emissive: '#ff1e1e',
+    emissiveIntensity: 2.0,
+    roughness: 0.15,
+  });
+  const trimBlackMat = new THREE.MeshStandardMaterial({ color: '#1b1d22', roughness: 0.65 });
+
+  // Lower sculpted 911 sports-car chassis
+  const lowerBody = new THREE.Mesh(new THREE.BoxGeometry(1.94, 0.52, 4.35), babyBlueMat);
+  lowerBody.position.set(0, 0.56, 0);
+  lowerBody.castShadow = true;
+  lowerBody.receiveShadow = true;
+  porscheGroup.add(lowerBody);
+
+  // Sloped front 911 nose / hood
+  const frontHood = new THREE.Mesh(new THREE.BoxGeometry(1.86, 0.28, 1.55), babyBlueMat);
+  frontHood.position.set(0, 0.72, 1.38);
+  frontHood.rotation.x = 0.17;
+  frontHood.castShadow = true;
+  porscheGroup.add(frontHood);
+
+  // Iconic wide flared rear Porsche 911 hips/haunches!
+  [-0.86, 0.86].forEach((hx) => {
+    const hip = new THREE.Mesh(new THREE.SphereGeometry(0.46, 14, 12), babyBlueMat);
+    hip.scale.set(0.62, 0.78, 2.15);
+    hip.position.set(hx, 0.72, -1.15);
+    hip.castShadow = true;
+    porscheGroup.add(hip);
+  });
+
+  // Signature curved fastback teardrop 911 cabin & roofline
+  const cabinRoof = new THREE.Mesh(new THREE.SphereGeometry(0.96, 20, 14), babyBlueMat);
+  cabinRoof.scale.set(0.86, 0.56, 1.72);
+  cabinRoof.position.set(0, 0.96, -0.22);
+  cabinRoof.castShadow = true;
+  porscheGroup.add(cabinRoof);
+
+  // Tinted wrap-around windshield & side windows
+  const windshield = new THREE.Mesh(new THREE.SphereGeometry(0.93, 18, 12), cabinGlassMat);
+  windshield.scale.set(0.84, 0.48, 1.56);
+  windshield.position.set(0, 0.96, -0.14);
+  porscheGroup.add(windshield);
+
+  // Front lower splitter & air intakes
+  const splitter = new THREE.Mesh(new THREE.BoxGeometry(1.88, 0.14, 0.35), trimBlackMat);
+  splitter.position.set(0, 0.34, 2.1);
+  porscheGroup.add(splitter);
+
+  // Iconic round Porsche 911 front headlights!
+  [-0.72, 0.72].forEach((lx) => {
+    const pod = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), babyBlueMat);
+    pod.scale.set(0.9, 0.75, 1.5);
+    pod.position.set(lx, 0.77, 1.78);
+    porscheGroup.add(pod);
+
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 10), headlightMat);
+    lamp.scale.set(0.95, 0.95, 0.5);
+    lamp.position.set(lx, 0.78, 2.05);
+    lamp.rotation.x = -0.35;
+    porscheGroup.add(lamp);
+  });
+
+  // Iconic full-width glowing red Porsche 911 rear lightbar + subtle ducktail spoiler!
+  const lightBar = new THREE.Mesh(new THREE.BoxGeometry(1.76, 0.085, 0.08), taillightMat);
+  lightBar.position.set(0, 0.74, -2.18);
+  porscheGroup.add(lightBar);
+
+  const spoiler = new THREE.Mesh(new THREE.BoxGeometry(1.56, 0.07, 0.34), babyBlueMat);
+  spoiler.position.set(0, 0.92, -1.96);
+  spoiler.rotation.x = 0.22;
+  porscheGroup.add(spoiler);
+
+  // Rear diffuser & twin chrome exhaust tips
+  const diffuser = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.22, 0.16), trimBlackMat);
+  diffuser.position.set(0, 0.38, -2.15);
+  porscheGroup.add(diffuser);
+  [-0.42, 0.42].forEach((ex) => {
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.18, 10), rimMat);
+    pipe.rotation.x = Math.PI / 2;
+    pipe.position.set(ex, 0.37, -2.23);
+    porscheGroup.add(pipe);
+  });
+
+  // Side mirrors
+  [-1.02, 1.02].forEach((mx) => {
+    const mirror = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.14), babyBlueMat);
+    mirror.position.set(mx, 0.94, 0.55);
+    porscheGroup.add(mirror);
+  });
+
+  // Four sporty low-profile wheels + alloy rims + gold calipers
+  [
+    [-0.96, 1.32],
+    [0.96, 1.32],
+    [-0.98, -1.32],
+    [0.98, -1.32],
+  ].forEach(([wx, wz]) => {
+    const wheel = new THREE.Group();
+    wheel.position.set(wx, 0.36, wz);
+
+    const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.28, 18), tireMat);
+    tire.rotation.z = Math.PI / 2;
+    tire.castShadow = true;
+    wheel.add(tire);
+
+    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.3, 14), rimMat);
+    rim.rotation.z = Math.PI / 2;
+    wheel.add(rim);
+
+    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.31, 0.12, 0.12), caliperMat);
+    caliper.position.set(0, 0.08, -0.06);
+    wheel.add(caliper);
+
+    porscheGroup.add(wheel);
+  });
+
+  campusGroup.add(porscheGroup);
+  obstacles.push({ x: porschePos.x, z: porschePos.z, radius: 2.35 });
+
   // 5. ORNAMENTAL CAMPUS TREES & WARM TWILIGHT STREET LAMPS
   const lampPoleMat = new THREE.MeshStandardMaterial({ color: '#2b323b', metalness: 0.7, roughness: 0.35 });
   const lampBulbMat = new THREE.MeshStandardMaterial({
@@ -4460,6 +4608,28 @@ function tryAdvanceStoryBeat() {
   }
 }
 
+// === EVMS CAMPUS PORSCHE 911 CONVERSATION (PACED AS BRANDON WALKS TOWARD FOUNTAIN & BUILDING) ===
+const CAMPUS_BEATS = [
+  { who: 'brandon', text: "Woah, what's that?", duration: 3.6 },
+  { who: 'damonie', text: "Well, it's the least I could do.", duration: 4.2 },
+  { who: 'brandon', text: 'Hell yeah!', duration: 3.4 },
+  { who: 'damonie', text: "Let's create something healthy together.", duration: 5.2 },
+];
+
+let campusStoryIdx = 0;
+let campusStoryCooldown = 5.0;
+
+function tryAdvanceCampusBeat() {
+  if (currentAct !== 'campus' || !gameStarted || isTransitioning) return;
+  if (campusStoryIdx >= CAMPUS_BEATS.length || campusStoryCooldown > 0 || activeSpeech) return;
+
+  const beat = CAMPUS_BEATS[campusStoryIdx];
+  campusStoryIdx++;
+  const speaker = beat.who === 'brandon' ? brandon : damonie;
+  showSpeech(speaker, beat.text, beat.duration);
+  campusStoryCooldown = beat.duration + 1.3;
+}
+
 // === TOAST NOTIFICATIONS ===
 const toastEl = document.getElementById('toast');
 let toastTimer = 0;
@@ -4562,11 +4732,12 @@ function enterVirginiaPortal() {
     setTimeout(() => {
       portalFlash.classList.remove('active');
       isTransitioning = false;
+      campusStoryCooldown = 5.0;
       showToast('✨ Welcome to Eastern Virginia Medical School — White Coat Ceremony!', 4.5);
       showSpeech(
         brandon,
-        'Nice lab coat — you look really good, Doc! 🩺✨',
-        4.8
+        'You look good, Doc! 🩺✨',
+        4.2
       );
     }, 550);
   }, 650);
@@ -4679,6 +4850,7 @@ function handleTapWalk(clientX, clientY) {
     clickRipple.scale.set(0.6, 0.6, 1);
     rippleLife = 0.75;
     tryAdvanceStoryBeat();
+    tryAdvanceCampusBeat();
   }
 }
 
@@ -4888,6 +5060,9 @@ function animate() {
   if (gameStarted && currentAct === 'forest' && storyCooldown > 0 && !storyLockedForPause) {
     storyCooldown = Math.max(0, storyCooldown - dt);
   }
+  if (gameStarted && currentAct === 'campus' && campusStoryCooldown > 0) {
+    campusStoryCooldown = Math.max(0, campusStoryCooldown - dt);
+  }
 
   // Click/tap golden ground ripple animation
   if (rippleLife > 0) {
@@ -4921,6 +5096,7 @@ function animate() {
     if (f !== 0 || r !== 0) {
       walkTarget = null; // Manual keyboard overrides click destination
       tryAdvanceStoryBeat();
+      tryAdvanceCampusBeat();
       const fwdX = -Math.sin(camYaw);
       const fwdZ = -Math.cos(camYaw);
       const rightX = Math.cos(camYaw);
