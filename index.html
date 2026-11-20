@@ -605,8 +605,8 @@ kbd {
       <div class="intro-badge">A Playable Story Walk</div>
       <h1>Golden Glade</h1>
       <p class="intro-subtitle">
-        Walk through a misty woodland with <strong>Damonie</strong> by your side,
-        forage wild treats, befriend one very big fat moose, and see where the forest trail leads.
+        Walk through a misty woodland with <strong>Damonie</strong> by your side.
+        <strong>Forage 5 wild treats and feed the Big Fat Moose</strong> to unlock the portal ahead.
       </p>
       <div class="intro-keys">
         <span><kbd>Click / Tap</kbd> Walk Anywhere</span>
@@ -2412,9 +2412,11 @@ function createForestWorld(rootScene) {
   crest.position.set(0, 6.02, 0.22);
   portalGroup.add(crest);
 
-  // Swirling Magical GLSL Portal Vortex inside the archway!
+  // Swirling Magical GLSL Portal Vortex inside the archway! (Dormant until Big Fat Moose is fed 5 times)
+  let portalUnlockedTarget = 0.0;
   const portalUniforms = {
     uTime: { value: 0 },
+    uUnlocked: { value: 0.0 },
   };
   const portalMat = new THREE.ShaderMaterial({
     transparent: true,
@@ -2431,6 +2433,7 @@ function createForestWorld(rootScene) {
     `,
     fragmentShader: `
       uniform float uTime;
+      uniform float uUnlocked;
       varying vec2 vUv;
       void main() {
         vec2 p = vUv * 2.0 - 1.0;
@@ -2438,19 +2441,22 @@ function createForestWorld(rootScene) {
         float r = length(p);
         float a = atan(p.y, p.x);
 
-        float swirl = sin(r * 10.0 - uTime * 3.6 + a * 3.0) * 0.5 + 0.5;
+        float swirl = sin(r * 10.0 - uTime * (1.2 + uUnlocked * 2.4) + a * 3.0) * 0.5 + 0.5;
         float ripple = sin(r * 18.0 - uTime * 5.2 - a * 2.0) * 0.5 + 0.5;
 
+        vec3 dormantMist = vec3(0.42, 0.55, 0.62);
         vec3 coreGold = vec3(1.0, 0.88, 0.55);
         vec3 outerBlue = vec3(0.24, 0.58, 1.0);
         vec3 midTeal = vec3(0.38, 0.88, 0.82);
 
-        vec3 col = mix(coreGold, midTeal, smoothstep(0.1, 0.65, r));
-        col = mix(col, outerBlue, smoothstep(0.55, 0.98, r));
-        col += vec3(0.35, 0.28, 0.12) * swirl * ripple;
+        vec3 activeCol = mix(coreGold, midTeal, smoothstep(0.1, 0.65, r));
+        activeCol = mix(activeCol, outerBlue, smoothstep(0.55, 0.98, r));
+        activeCol += vec3(0.35, 0.28, 0.12) * swirl * ripple;
+
+        vec3 col = mix(dormantMist, activeCol, uUnlocked);
 
         float edgeMask = smoothstep(1.0, 0.62, r);
-        float alpha = edgeMask * (0.68 + 0.28 * swirl);
+        float alpha = edgeMask * mix(0.16 + 0.06 * swirl, 0.68 + 0.28 * swirl, uUnlocked);
         gl_FragColor = vec4(col, alpha);
       }
     `,
@@ -2460,7 +2466,7 @@ function createForestWorld(rootScene) {
   portalVortex.position.set(0, 2.5, 0.02);
   portalGroup.add(portalVortex);
 
-  const portalLight = new THREE.PointLight('#ffd27d', 5.5, 16, 1.4);
+  const portalLight = new THREE.PointLight('#ffd27d', 1.2, 16, 1.4);
   portalLight.position.set(0, 3.2, 1.2);
   portalGroup.add(portalLight);
 
@@ -2476,13 +2482,22 @@ function createForestWorld(rootScene) {
     beamMat,
     lanternLight,
     portalPos: new THREE.Vector3(PORTAL_POS.x, portalY, PORTAL_POS.z),
+    setPortalUnlocked(unlocked) {
+      portalUnlockedTarget = unlocked ? 1.0 : 0.0;
+    },
     update(elapsed) {
       skyUniforms.uTime.value = elapsed;
       waterUniforms.uTime.value = elapsed;
       grassUniforms.uTime.value = elapsed;
       beamMat.uniforms.uTime.value = elapsed;
       portalUniforms.uTime.value = elapsed;
-      portalLight.intensity = 5.2 + Math.sin(elapsed * 3.8) * 1.1;
+      portalUniforms.uUnlocked.value = THREE.MathUtils.lerp(
+        portalUniforms.uUnlocked.value,
+        portalUnlockedTarget,
+        0.06
+      );
+      const u = portalUniforms.uUnlocked.value;
+      portalLight.intensity = 1.0 + u * (4.4 + Math.sin(elapsed * 3.8) * 1.1);
       lanternLight.intensity = 3.2 + Math.sin(elapsed * 5.2) * 0.35 + Math.cos(elapsed * 8.7) * 0.15;
 
       // Gentle bob & pulse on uncollected forageables
@@ -4884,10 +4899,11 @@ function updateHUD() {
   const pct = (moose.fedCount / moose.maxFed) * 100;
   document.getElementById('moose-meter-fill').style.width = `${pct}%`;
   const moodLabel = document.getElementById('moose-mood-label');
-  if (moose.fedCount === 0) moodLabel.textContent = 'Hungry & Curious';
-  else if (moose.fedCount < 3) moodLabel.textContent = 'Loves Snacks!';
-  else if (moose.fedCount < 5) moodLabel.textContent = 'Happy Chonky Boy';
-  else moodLabel.textContent = 'Best Forest Buddy ♥';
+  if (moose.fedCount < moose.maxFed) {
+    moodLabel.textContent = `Fed ${moose.fedCount} / ${moose.maxFed} Snacks`;
+  } else {
+    moodLabel.textContent = '5/5 • NORFOLK Unlocked ✨';
+  }
 }
 
 function getTotalSnacksInBasket() {
@@ -4911,6 +4927,11 @@ const finaleOverlay = document.getElementById('finale-overlay');
 
 function enterVirginiaPortal() {
   if (isTransitioning || currentAct === 'campus') return;
+  if (moose.fedCount < moose.maxFed) {
+    const left = moose.maxFed - moose.fedCount;
+    showToast(`🫎 Feed the Big Fat Moose ${left} more snack${left === 1 ? '' : 's'} to unlock NORFOLK!`, 3.4);
+    return;
+  }
   isTransitioning = true;
   audio.playPortalTransform();
   portalFlash.classList.add('active');
@@ -5187,10 +5208,17 @@ function handleFeedMoose() {
     return;
   }
   leader.forageAnim = 0.55;
+  const wasUnlocked = moose.fedCount >= moose.maxFed;
   const fed = moose.feed(spawnHeart, audio);
   updateHUD();
   if (fed >= moose.maxFed) {
-    showToast('🫎 The Big Fat Moose is ecstatic! Best Forest Buddy!');
+    world.setPortalUnlocked(true);
+    if (!wasUnlocked) {
+      audio.playPortalTransform();
+      showToast('✨ The Big Fat Moose is happy — the NORFOLK Portal has awakened!', 4.8);
+    } else {
+      showToast('🫎 The Big Fat Moose is ecstatic! The NORFOLK Portal is open!');
+    }
   } else {
     showToast(`Fed the Big Fat Moose a forest ${snack}! (${fed}/${moose.maxFed})`);
   }
@@ -5365,12 +5393,29 @@ function animate() {
   nearestContext = null;
   if (gameStarted && !isTransitioning) {
     if (currentAct === 'forest') {
-      // 1. Check NORFOLK medieval portal proximity (auto-enter if stepping right into vortex!)
+      // 1. Check NORFOLK medieval portal proximity (locked until Big Fat Moose is fed 5 snacks!)
+      const portalUnlocked = moose.fedCount >= moose.maxFed;
       const dPortal = leader.root.position.distanceTo(world.portalPos);
-      if (dPortal < 1.85) {
-        enterVirginiaPortal();
-      } else if (dPortal < 4.5) {
-        nearestContext = { kind: 'portal', key: 'E', text: 'Step through the NORFOLK Portal' };
+
+      if (!portalUnlocked) {
+        // Prevent walking past the locked NORFOLK archway
+        if (Math.abs(leader.root.position.x - world.portalPos.x) < 2.4 && leader.root.position.z < world.portalPos.z + 1.35) {
+          leader.root.position.z = world.portalPos.z + 1.35;
+          walkTarget = null;
+        }
+        if (dPortal < 4.8) {
+          nearestContext = {
+            kind: 'portal',
+            key: '🔒',
+            text: `Feed the Big Fat Moose (${moose.fedCount}/5) to unlock NORFOLK`,
+          };
+        }
+      } else {
+        if (dPortal < 1.85) {
+          enterVirginiaPortal();
+        } else if (dPortal < 4.5) {
+          nearestContext = { kind: 'portal', key: 'E', text: 'Step through the NORFOLK Portal' };
+        }
       }
 
       // 2. Check nearby forageables
