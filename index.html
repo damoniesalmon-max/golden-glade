@@ -1,0 +1,4965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golden Glade — Brandon &amp; Damonie's Forest Walk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+:root {
+  --glass-bg: rgba(16, 23, 19, 0.56);
+  --glass-border: rgba(255, 240, 210, 0.18);
+  --text-main: #f8f5ee;
+  --text-muted: rgba(248, 245, 238, 0.72);
+  --accent-gold: #f4be5e;
+  --accent-rose: #f28ba8;
+  --accent-emerald: #6ee7b7;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0d1410;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-main);
+}
+
+#canvas-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(6px);
+}
+
+/* Intro Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(16, 24, 18, 0.25) 0%, rgba(10, 15, 12, 0.78) 100%);
+  backdrop-filter: blur(6px);
+  z-index: 30;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.intro-card {
+  max-width: 540px;
+  width: calc(100% - 32px);
+  padding: 40px 38px;
+  border-radius: 26px;
+  background: rgba(17, 25, 20, 0.72);
+  border: 1px solid rgba(255, 235, 195, 0.24);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(20px);
+  text-align: center;
+}
+
+.intro-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  background: rgba(244, 190, 94, 0.14);
+  border: 1px solid rgba(244, 190, 94, 0.3);
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.intro-card h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff8e7 0%, #f7cf86 58%, #f3a683 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 14px;
+}
+
+.intro-subtitle {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.intro-subtitle strong {
+  color: #fff6e5;
+  font-weight: 600;
+}
+
+.intro-keys {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 12px;
+  margin-bottom: 28px;
+  font-size: 12.5px;
+  color: rgba(248, 245, 238, 0.85);
+}
+
+.intro-keys span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 5px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: #161d17;
+  background: linear-gradient(180deg, #fff5dc 0%, #e8c78a 100%);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.primary-btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 15px 38px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #191f17;
+  background: linear-gradient(135deg, #fbe2a4 0%, #f2b454 100%);
+  box-shadow: 0 10px 30px rgba(242, 180, 84, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 36px rgba(242, 180, 84, 0.52);
+}
+
+.primary-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* HUD */
+.hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  transition: opacity 0.6s ease;
+}
+
+.hud-panel {
+  pointer-events: auto;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+}
+
+.hud-top-left {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 248px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.panel-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff6e4;
+}
+
+.pill-count {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  background: rgba(244, 190, 94, 0.16);
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
+.forage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  margin-bottom: 12px;
+}
+
+.forage-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.forage-item strong {
+  margin-left: auto;
+  color: #fff;
+  font-weight: 700;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-berry { background: #5a7bff; box-shadow: 0 0 8px #5a7bff; }
+.dot-mushroom { background: #f6b24d; box-shadow: 0 0 8px #f6b24d; }
+.dot-apple { background: #f25252; box-shadow: 0 0 8px #f25252; }
+.dot-strawberry { background: #ff5e84; box-shadow: 0 0 8px #ff5e84; }
+.dot-truffle { background: #ffe57f; box-shadow: 0 0 10px #ffe57f; }
+
+.moose-meter-wrap {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.moose-meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  margin-bottom: 6px;
+}
+
+#moose-mood-label {
+  color: var(--accent-gold);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.meter-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f4be5e 0%, #f28ba8 100%);
+  box-shadow: 0 0 10px rgba(244, 190, 94, 0.6);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Top Right Chips */
+.hud-top-right {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.hud-chip {
+  appearance: none;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 9px 13px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+}
+
+.hud-chip:hover {
+  background: rgba(28, 39, 32, 0.78);
+  border-color: rgba(244, 190, 94, 0.45);
+  transform: translateY(-1px);
+}
+
+.chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.chip-dot.active-brandon { background: #f4d39c; box-shadow: 0 0 8px #f4d39c; }
+.chip-dot.active-damonie { background: #64a8ff; box-shadow: 0 0 8px #64a8ff; }
+
+.help-panel {
+  position: absolute;
+  top: 66px;
+  right: 18px;
+  width: 260px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.help-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+
+/* Bottom Center Prompt & Toast */
+.hud-bottom {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-prompt {
+  pointer-events: auto;
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 224, 160, 0.42);
+  background: rgba(18, 26, 20, 0.76);
+  backdrop-filter: blur(14px);
+  color: #fff8ea;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 24px rgba(244, 190, 94, 0.18);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.action-prompt:hover {
+  transform: scale(1.03);
+}
+
+.toast {
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(24, 34, 26, 0.82);
+  border: 1px solid rgba(244, 190, 94, 0.35);
+  color: #ffe9be;
+  font-size: 13px;
+  font-weight: 500;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Floating 3D-projected Speech Bubbles */
+#speech-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.speech-bubble {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 7px 14px;
+  border-radius: 16px;
+  background: rgba(255, 250, 240, 0.92);
+  color: #1f2820;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition: opacity 0.35s ease;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: rgba(255, 250, 240, 0.92) transparent transparent transparent;
+}
+
+/* Portal Flash Overlay */
+.portal-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  background: radial-gradient(circle at center, #ffffff 0%, #ffe6a8 45%, #5b9dff 100%);
+  opacity: 0;
+  transition: opacity 0.65s ease;
+}
+
+.portal-flash.active {
+  opacity: 1;
+}
+
+.finale-card {
+  max-width: 580px;
+  border-color: rgba(244, 190, 94, 0.48);
+  box-shadow: 0 36px 90px rgba(0, 0, 0, 0.65), 0 0 60px rgba(244, 190, 94, 0.22);
+}
+
+.finale-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.secondary-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 240, 210, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 15px 28px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
+}
+
+</style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <!-- Portal Flash Transition Overlay -->
+  <div id="portal-flash" class="portal-flash"></div>
+
+  <!-- White Coat Ceremony Finale Overlay -->
+  <div id="finale-overlay" class="overlay hidden">
+    <div class="intro-card finale-card">
+      <div class="intro-badge">Eastern Virginia Medical School</div>
+      <h1>MD Class of 2031</h1>
+      <p class="intro-subtitle">
+        From wandering wild forest trails together to stepping into the
+        <strong>Brickell Medical Sciences Building</strong> in your white coat &amp; stethoscope —
+        with <strong>Brandon</strong> right by your side.
+        <br /><br />
+        <em>Here’s to what’s next, future Dr. Damonie.</em> 🩺✨
+      </p>
+      <div class="finale-actions">
+        <button id="btn-keep-exploring" class="primary-btn">Keep Exploring Campus</button>
+        <button id="btn-return-forest" class="secondary-btn">Return to the Forest</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Intro Title Overlay -->
+  <div id="intro-overlay" class="overlay">
+    <div class="intro-card">
+      <div class="intro-badge">A Playable Story Walk</div>
+      <h1>Golden Glade</h1>
+      <p class="intro-subtitle">
+        Stroll through a golden-hour woodland with <strong>Brandon</strong> &amp; <strong>Damonie</strong>,
+        forage wild treats, befriend one very big fat moose, and see where the forest trail leads.
+      </p>
+      <div class="intro-keys">
+        <span><kbd>WASD</kbd> Walk</span>
+        <span><kbd>Shift</kbd> Jog</span>
+        <span><kbd>E</kbd> Forage</span>
+        <span><kbd>F</kbd> Feed Moose</span>
+        <span><kbd>H</kbd> Pull Close</span>
+        <span><kbd>Tab</kbd> Switch Character</span>
+      </div>
+      <button id="start-btn" class="primary-btn">Enter the Forest</button>
+    </div>
+  </div>
+
+  <!-- Minimalist In-Game HUD -->
+  <div id="hud" class="hud hidden">
+    <!-- Top Left: Foraging Basket & Moose Mood -->
+    <div class="hud-panel hud-top-left">
+      <div class="panel-header">
+        <span class="panel-title">Forage Basket</span>
+        <span id="total-foraged" class="pill-count">0 / 18</span>
+      </div>
+      <div class="forage-grid">
+        <div class="forage-item" title="Wild Blueberries">
+          <span class="dot dot-berry"></span>
+          <span class="forage-label">Berries</span>
+          <strong id="count-berry">0</strong>
+        </div>
+        <div class="forage-item" title="Forest Mushrooms">
+          <span class="dot dot-mushroom"></span>
+          <span class="forage-label">Mushrooms</span>
+          <strong id="count-mushroom">0</strong>
+        </div>
+        <div class="forage-item" title="Crisp Forest Apples">
+          <span class="dot dot-apple"></span>
+          <span class="forage-label">Apples</span>
+          <strong id="count-apple">0</strong>
+        </div>
+        <div class="forage-item" title="Wild Strawberries">
+          <span class="dot dot-strawberry"></span>
+          <span class="forage-label">Strawberries</span>
+          <strong id="count-strawberry">0</strong>
+        </div>
+        <div class="forage-item" title="Golden Truffles">
+          <span class="dot dot-truffle"></span>
+          <span class="forage-label">Truffles</span>
+          <strong id="count-truffle">0</strong>
+        </div>
+      </div>
+
+      <div class="moose-meter-wrap">
+        <div class="moose-meter-head">
+          <span>🫎 Big Fat Moose</span>
+          <span id="moose-mood-label">Hungry &amp; Curious</span>
+        </div>
+        <div class="meter-track">
+          <div id="moose-meter-fill" class="meter-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Right: Controls & Toggles -->
+    <div class="hud-top-right">
+      <button id="btn-switch-char" class="hud-chip" title="Switch Character (Tab)">
+        <span class="chip-dot active-brandon" id="char-dot"></span>
+        <span>Leading: <strong id="active-char-name">Brandon</strong></span>
+      </button>
+      <button id="btn-sound" class="hud-chip" title="Toggle Sound">
+        <span id="sound-icon">🔊</span>
+      </button>
+      <button id="btn-help" class="hud-chip" title="Toggle Controls">
+        <span>?</span>
+      </button>
+    </div>
+
+    <!-- Controls Cheat Sheet -->
+    <div id="help-panel" class="hud-panel help-panel hidden">
+      <div class="panel-title" style="margin-bottom: 8px;">Controls</div>
+      <div class="help-row"><kbd>W A S D</kbd> / <kbd>Arrows</kbd> <span>Walk around</span></div>
+      <div class="help-row"><kbd>Shift</kbd> <span>Jog</span></div>
+      <div class="help-row"><kbd>2-Finger Swipe</kbd> / <kbd>Drag</kbd> <span>Look around 360°</span></div>
+      <div class="help-row"><kbd>Pinch</kbd> / <kbd>-</kbd> <kbd>+</kbd> <span>Zoom out / in</span></div>
+      <div class="help-row"><kbd>Q</kbd> / <kbd>R</kbd> <span>Rotate camera</span></div>
+      <div class="help-row"><kbd>E</kbd> / <kbd>Space</kbd> <span>Forage / Enter Portal</span></div>
+      <div class="help-row"><kbd>F</kbd> <span>Feed the Big Fat Moose</span></div>
+      <div class="help-row"><kbd>H</kbd> <span>Gravitate / Cozy Moment</span></div>
+      <div class="help-row"><kbd>Tab</kbd> <span>Switch Brandon &harr; Damonie</span></div>
+    </div>
+
+    <!-- Speech Bubble Container (projected from 3D) -->
+    <div id="speech-layer"></div>
+
+    <!-- Bottom Center: Contextual Action Prompt + Toast -->
+    <div class="hud-bottom">
+      <div id="toast" class="toast hidden"></div>
+      <button id="action-prompt" class="action-prompt hidden">
+        <kbd id="prompt-key">E</kbd>
+        <span id="prompt-text">Forage Wild Blueberries</span>
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+import * as THREE from 'three';
+
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+// === audio.js ===
+// Procedural Web Audio API forest soundscape & SFX
+class ForestAudio {
+  constructor() {
+    this.ctx = null;
+    this.enabled = true;
+    this.started = false;
+    this.masterGain = null;
+    this.windGain = null;
+    this.birdTimer = 0;
+  }
+
+  init() {
+    if (this.started) {
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+      return;
+    }
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+
+    this.ctx = new AudioCtx();
+    this.masterGain = this.ctx.createGain();
+    this.masterGain.gain.value = this.enabled ? 0.55 : 0;
+    this.masterGain.connect(this.ctx.destination);
+
+    this._startWindAmbience();
+    this.started = true;
+  }
+
+  setEnabled(flag) {
+    this.enabled = flag;
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setTargetAtTime(flag ? 0.55 : 0, this.ctx.currentTime, 0.15);
+    }
+  }
+
+  _startWindAmbience() {
+    // Filtered pink-ish noise for gentle forest breeze
+    const bufferSize = this.ctx.sampleRate * 4;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.997 * b0 + white * 0.029;
+      b1 = 0.985 * b1 + white * 0.032;
+      b2 = 0.950 * b2 + white * 0.048;
+      data[i] = (b0 + b1 + b2) * 0.6;
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    noise.loop = true;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 380;
+    filter.Q.value = 0.7;
+
+    // Gentle LFO modulating wind pitch
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    lfo.frequency.value = 0.11;
+    lfoGain.gain.value = 160;
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+    lfo.start();
+
+    this.windGain = this.ctx.createGain();
+    this.windGain.gain.value = 0.22;
+
+    noise.connect(filter);
+    filter.connect(this.windGain);
+    this.windGain.connect(this.masterGain);
+    noise.start();
+  }
+
+  update(dt) {
+    if (!this.started || !this.enabled) return;
+    this.birdTimer -= dt;
+    if (this.birdTimer <= 0) {
+      this.birdTimer = 4.5 + Math.random() * 7.5;
+      this.playBirdChirp();
+    }
+  }
+
+  playBirdChirp() {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+    const notes = 2 + Math.floor(Math.random() * 2);
+    const baseFreq = 2100 + Math.random() * 1100;
+
+    for (let i = 0; i < notes; i++) {
+      const t = now + i * 0.14;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq * (0.9 + Math.random() * 0.2), t);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * (1.2 + Math.random() * 0.25), t + 0.06);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.85, t + 0.11);
+
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.032, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.13);
+    }
+  }
+
+  playFootstep() {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+    const bufferSize = Math.floor(this.ctx.sampleRate * 0.06);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28));
+    }
+
+    const src = this.ctx.createBufferSource();
+    src.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 600 + Math.random() * 350;
+
+    const gain = this.ctx.createGain();
+    gain.gain.value = 0.12;
+
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+    src.start(now);
+  }
+
+  playForage(isRare = false) {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+    const scale = isRare ? [523.25, 659.25, 783.99, 1046.5, 1318.5] : [440, 554.37, 659.25, 880];
+    scale.forEach((freq, idx) => {
+      const t = now + idx * 0.065;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.14, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.36);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 0.38);
+    });
+  }
+
+  playCozyChord() {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+    // Warm Fmaj9 chord
+    const freqs = [349.23, 440.0, 523.25, 659.25, 783.99];
+    freqs.forEach((freq, i) => {
+      const t = now + i * 0.04;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.075, t + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.15);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 1.2);
+    });
+  }
+
+  playMooseGrunt(happy = false) {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    if (happy) {
+      osc.frequency.setValueAtTime(92, now);
+      osc.frequency.exponentialRampToValueAtTime(145, now + 0.18);
+      osc.frequency.exponentialRampToValueAtTime(105, now + 0.42);
+    } else {
+      osc.frequency.setValueAtTime(84, now);
+      osc.frequency.exponentialRampToValueAtTime(64, now + 0.35);
+    }
+
+    filter.type = 'lowpass';
+    filter.frequency.value = happy ? 320 : 220;
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.22, now + 0.06);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.48);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start(now);
+    osc.stop(now + 0.5);
+  }
+
+  playPortalTransform() {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+    const notes = [261.63, 329.63, 392.0, 523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((freq, i) => {
+      const t = now + i * 0.08;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.14, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.95);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(t);
+      osc.stop(t + 1.0);
+    });
+  }
+
+  playCeremonyFanfare() {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+    // Celebratory Cmaj9 -> Gmaj -> Cmaj triumphant swell
+    const chords = [
+      { t: 0.0, freqs: [261.63, 329.63, 392.0, 523.25] },
+      { t: 0.42, freqs: [293.66, 392.0, 493.88, 587.33] },
+      { t: 0.88, freqs: [261.63, 392.0, 523.25, 659.25, 783.99] },
+    ];
+    chords.forEach((ch) => {
+      ch.freqs.forEach((f) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + ch.t);
+        gain.gain.setValueAtTime(0.0001, now + ch.t);
+        gain.gain.linearRampToValueAtTime(0.085, now + ch.t + 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + ch.t + 1.8);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now + ch.t);
+        osc.stop(now + ch.t + 1.85);
+      });
+    });
+  }
+}
+
+
+// === textures.js ===
+
+function createDamonieArmTattooTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Damonie's warm deep brown skin base
+  ctx.fillStyle = '#6f4329';
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Subtle dark ink tribal/geometric band around upper arm
+  ctx.fillStyle = 'rgba(24, 18, 16, 0.72)';
+  ctx.fillRect(0, 86, 256, 7);
+  ctx.fillRect(0, 150, 256, 7);
+
+  ctx.strokeStyle = 'rgba(24, 18, 16, 0.75)';
+  ctx.lineWidth = 5;
+  for (let x = 16; x < 256; x += 32) {
+    ctx.beginPath();
+    ctx.moveTo(x - 10, 146);
+    ctx.lineTo(x, 96);
+    ctx.lineTo(x + 10, 146);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(x, 122, 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createWildernessShirtTexture(baseColor, accentColor) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = baseColor;
+  ctx.fillRect(0, 0, 256, 256);
+
+  // Subtle rugged canvas fabric weave
+  for (let y = 0; y < 256; y += 4) {
+    ctx.fillStyle = y % 8 === 0 ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)';
+    ctx.fillRect(0, y, 256, 2);
+  }
+
+  // Front expedition utility seams & chest pockets
+  ctx.fillStyle = accentColor;
+  ctx.fillRect(123, 0, 10, 256); // center placket
+  ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(52, 68, 48, 52);
+  ctx.strokeRect(156, 68, 48, 52);
+
+  // Pocket flaps
+  ctx.fillStyle = accentColor;
+  ctx.fillRect(52, 68, 48, 15);
+  ctx.fillRect(156, 68, 48, 15);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createWhiteCoatTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+
+  // Crisp bright medical white coat
+  ctx.fillStyle = '#f8f9fc';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Subtle tailored fabric shading
+  ctx.fillStyle = 'rgba(180, 195, 220, 0.14)';
+  ctx.fillRect(250, 0, 12, 512);
+
+  // Open front V showing navy suit & crisp white dress shirt + royal blue tie!
+  ctx.fillStyle = '#1b2b48'; // navy suit lapels underneath
+  ctx.beginPath();
+  ctx.moveTo(212, 0);
+  ctx.lineTo(300, 0);
+  ctx.lineTo(272, 235);
+  ctx.lineTo(240, 235);
+  ctx.closePath();
+  ctx.fill();
+
+  // White dress shirt V
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(226, 0);
+  ctx.lineTo(286, 0);
+  ctx.lineTo(264, 195);
+  ctx.lineTo(248, 195);
+  ctx.closePath();
+  ctx.fill();
+
+  // Royal blue patterned tie (nod to the EVMS photo!)
+  ctx.fillStyle = '#4e79c7';
+  ctx.beginPath();
+  ctx.moveTo(248, 8);
+  ctx.lineTo(264, 8);
+  ctx.lineTo(269, 178);
+  ctx.lineTo(256, 204);
+  ctx.lineTo(243, 178);
+  ctx.closePath();
+  ctx.fill();
+
+  // White coat buttons
+  ctx.fillStyle = '#d5dce8';
+  for (let y = 260; y <= 410; y += 72) {
+    ctx.beginPath();
+    ctx.arc(256, y, 7, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Embroidered EVMS blue crest on left chest
+  ctx.fillStyle = '#1b498a';
+  ctx.font = 'bold 18px Georgia, serif';
+  ctx.fillText('EVMS', 302, 132);
+  ctx.fillStyle = '#c89e3e';
+  ctx.fillRect(302, 138, 52, 3);
+
+  // Coat side pockets
+  ctx.strokeStyle = 'rgba(140, 155, 180, 0.45)';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(118, 315, 76, 86);
+  ctx.strokeRect(318, 315, 76, 86);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createSuitTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+
+  // Sharp tailored charcoal-navy suit
+  ctx.fillStyle = '#1e283b';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Subtle woven wool texture
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  for (let x = 0; x < 512; x += 4) ctx.fillRect(x, 0, 1, 512);
+
+  // Crisp white shirt V
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(222, 0);
+  ctx.lineTo(290, 0);
+  ctx.lineTo(264, 215);
+  ctx.lineTo(248, 215);
+  ctx.closePath();
+  ctx.fill();
+
+  // Deep burgundy/gold-accented dress tie
+  ctx.fillStyle = '#7e2a3b';
+  ctx.beginPath();
+  ctx.moveTo(248, 8);
+  ctx.lineTo(264, 8);
+  ctx.lineTo(270, 185);
+  ctx.lineTo(256, 215);
+  ctx.lineTo(242, 185);
+  ctx.closePath();
+  ctx.fill();
+
+  // Suit lapel seams
+  ctx.strokeStyle = '#121926';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(212, 0);
+  ctx.lineTo(246, 224);
+  ctx.moveTo(300, 0);
+  ctx.lineTo(266, 224);
+  ctx.stroke();
+
+  // White pocket square
+  ctx.fillStyle = '#f5f7fb';
+  ctx.fillRect(306, 128, 38, 12);
+
+  // Suit buttons
+  ctx.fillStyle = '#0d131d';
+  ctx.beginPath();
+  ctx.arc(256, 265, 7, 0, Math.PI * 2);
+  ctx.arc(256, 330, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createMedievalPlaqueTexture(labelText = 'VIRGINIA') {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Weathered medieval carved stone background
+  const grad = ctx.createLinearGradient(0, 0, 0, 256);
+  grad.addColorStop(0, '#5a5b55');
+  grad.addColorStop(0.5, '#4c4e48');
+  grad.addColorStop(1, '#3d3f3a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 256);
+
+  // Stone grain & moss speckles
+  for (let i = 0; i < 650; i++) {
+    ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.09)';
+    ctx.fillRect(Math.random() * 1024, Math.random() * 256, 4 + Math.random() * 14, 4 + Math.random() * 10);
+  }
+  for (let i = 0; i < 36; i++) {
+    ctx.fillStyle = 'rgba(72, 110, 54, 0.28)';
+    ctx.beginPath();
+    ctx.arc(Math.random() * 1024, Math.random() * 55, 8 + Math.random() * 18, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Carved ornamental medieval border
+  ctx.strokeStyle = '#c8a661';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(22, 22, 980, 212);
+  ctx.strokeStyle = 'rgba(20, 18, 14, 0.55)';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(34, 34, 956, 188);
+
+  // Clear old-style medieval serif engraving
+  const fontSize = labelText.length > 8 ? 102 : 124;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `bold ${fontSize}px "Cinzel", "Palatino Linotype", "Book Antiqua", Georgia, serif`;
+
+  // Deep chiseled shadow
+  ctx.fillStyle = '#1b1812';
+  ctx.fillText(labelText, 516, 138);
+
+  // Burnished antique gold lettering
+  const textGrad = ctx.createLinearGradient(0, 65, 0, 195);
+  textGrad.addColorStop(0, '#fff2c2');
+  textGrad.addColorStop(0.5, '#e8be66');
+  textGrad.addColorStop(1, '#b88635');
+  ctx.fillStyle = textGrad;
+  ctx.fillText(labelText, 512, 134);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createVirginiaPlaqueTexture() {
+  return createMedievalPlaqueTexture('VIRGINIA');
+}
+
+function createShenandoahPlaqueTexture() {
+  return createMedievalPlaqueTexture('SHENANDOAH');
+}
+
+function createClass2031BannerTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  // Deep ODU/EVMS royal navy ceremonial banner
+  const grad = ctx.createLinearGradient(0, 0, 1024, 256);
+  grad.addColorStop(0, '#0f274a');
+  grad.addColorStop(0.5, '#173b6e');
+  grad.addColorStop(1, '#0f274a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 256);
+
+  // Gold double trim border
+  ctx.strokeStyle = '#e7be62';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(14, 14, 996, 228);
+  ctx.strokeStyle = 'rgba(255, 240, 195, 0.45)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(28, 28, 968, 200);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Top subtitle
+  ctx.fillStyle = '#d7e6ff';
+  ctx.font = '600 32px "Plus Jakarta Sans", Arial, sans-serif';
+  ctx.fillText('EASTERN VIRGINIA MEDICAL SCHOOL  •  WHITE COAT CEREMONY', 512, 74);
+
+  // Main celebratory headline
+  const goldGrad = ctx.createLinearGradient(0, 110, 0, 210);
+  goldGrad.addColorStop(0, '#fff6d6');
+  goldGrad.addColorStop(0.55, '#f5c767');
+  goldGrad.addColorStop(1, '#d49a38');
+  ctx.fillStyle = goldGrad;
+  ctx.font = 'bold 96px Georgia, "Times New Roman", serif';
+  ctx.fillText('MD CLASS OF 2031', 512, 166);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createBrickellFriezeTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 2048;
+  canvas.height = 160;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#d6cfc2';
+  ctx.fillRect(0, 0, 2048, 160);
+
+  ctx.fillStyle = '#47433c';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '600 54px Georgia, serif';
+  ctx.fillText('EDWARD  E.  BRICKELL   MEDICAL   SCIENCES', 1024, 82);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createBarkTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#4e3829';
+  ctx.fillRect(0, 0, 256, 512);
+
+  for (let i = 0; i < 180; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 512;
+    const w = 3 + Math.random() * 9;
+    const h = 30 + Math.random() * 90;
+    ctx.fillStyle = Math.random() > 0.45 ? 'rgba(30,20,14,0.38)' : 'rgba(105,78,56,0.28)';
+    ctx.fillRect(x, y, w, h);
+  }
+
+  for (let i = 0; i < 24; i++) {
+    ctx.fillStyle = 'rgba(72, 108, 52, 0.25)';
+    ctx.beginPath();
+    ctx.ellipse(Math.random() * 256, 360 + Math.random() * 150, 14, 28, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+
+function createSoftGlowTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  grad.addColorStop(0.28, 'rgba(255, 240, 200, 0.85)');
+  grad.addColorStop(0.65, 'rgba(255, 210, 140, 0.22)');
+  grad.addColorStop(1, 'rgba(255, 200, 120, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createHeartTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 128, 128);
+
+  const grad = ctx.createRadialGradient(64, 58, 6, 64, 64, 54);
+  grad.addColorStop(0, '#ffd4e2');
+  grad.addColorStop(0.5, '#ff7ca8');
+  grad.addColorStop(1, '#e84c82');
+
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(64, 102);
+  ctx.bezierCurveTo(18, 72, 16, 30, 42, 26);
+  ctx.bezierCurveTo(56, 24, 64, 38, 64, 44);
+  ctx.bezierCurveTo(64, 38, 72, 24, 86, 26);
+  ctx.bezierCurveTo(112, 30, 110, 72, 64, 102);
+  ctx.closePath();
+  ctx.fill();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+
+// === world.js ===
+
+
+const MAP_RADIUS = 26.5;
+const POND_CENTER = new THREE.Vector2(-7.5, -6.5);
+const POND_RADIUS = 6.8;
+const WATER_LEVEL = -0.22;
+const PORTAL_POS = new THREE.Vector3(0.0, 0.0, -20.5);
+
+// Simple deterministic pseudo-random generator so the forest layout is crafted & repeatable
+function mulberry32(seed) {
+  let a = seed;
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Smooth 2D value noise for organic rolling forest terrain
+function hash2(x, z) {
+  const s = Math.sin(x * 127.1 + z * 311.7) * 43758.5453123;
+  return s - Math.floor(s);
+}
+
+function noise2D(x, z) {
+  const ix = Math.floor(x);
+  const iz = Math.floor(z);
+  const fx = x - ix;
+  const fz = z - iz;
+  const ux = fx * fx * (3 - 2 * fx);
+  const uz = fz * fz * (3 - 2 * fz);
+  const a = hash2(ix, iz);
+  const b = hash2(ix + 1, iz);
+  const c = hash2(ix, iz + 1);
+  const d = hash2(ix + 1, iz + 1);
+  return a + (b - a) * ux + (c - a) * uz + (a - b - c + d) * ux * uz;
+}
+
+function getMainTrailCenterX(z) {
+  return Math.sin((z + 20.5) * 0.13) * 2.3;
+}
+
+function getPathFactor(x, z) {
+  // One clear, graceful sunlit woodland path leading from starting clearing straight to the VIRGINIA archway
+  const cx = getMainTrailCenterX(z);
+  const distToMainTrail = z >= -22.5 && z <= 14.5 ? Math.abs(x - cx) : 99;
+  return Math.max(0, 1 - distToMainTrail / 2.85);
+}
+
+function getTerrainHeight(x, z) {
+  // Rolling gentle woodland undulations
+  let h = (noise2D(x * 0.065 + 4.1, z * 0.065 - 2.3) - 0.5) * 2.2;
+  h += (noise2D(x * 0.16 - 7.4, z * 0.16 + 3.8) - 0.5) * 0.55;
+
+  // Flatten center starting clearing & portal dais clearing
+  const centerDist = Math.hypot(x - 1.5, z - 8.5);
+  const centerFlat = Math.max(0, 1 - centerDist / 7.5);
+  h *= 1 - centerFlat * 0.65;
+
+  const portalDist = Math.hypot(x - PORTAL_POS.x, z - PORTAL_POS.z);
+  if (portalDist < 6.5) {
+    const pt = Math.max(0, 1 - portalDist / 6.5);
+    const smooth = pt * pt * (3 - 2 * pt);
+    h = THREE.MathUtils.lerp(h, 0.2, smooth);
+  }
+
+  // Carve scenic forest pond basin
+  const pondDist = Math.hypot(x - POND_CENTER.x, z - POND_CENTER.y);
+  if (pondDist < POND_RADIUS + 3.2) {
+    const t = Math.max(0, 1 - pondDist / (POND_RADIUS + 3.2));
+    const smooth = t * t * (3 - 2 * t);
+    h = THREE.MathUtils.lerp(h, -1.25, smooth);
+  }
+
+  // Gentle enclosing hills outside playable radius
+  const r = Math.hypot(x, z);
+  if (r > MAP_RADIUS - 2) {
+    const rim = (r - (MAP_RADIUS - 2)) / 14;
+    h += rim * rim * 6.8;
+  }
+
+  return h;
+}
+
+function isInPond(x, z, margin = 0.2) {
+  return Math.hypot(x - POND_CENTER.x, z - POND_CENTER.y) < POND_RADIUS - margin;
+}
+
+function createForestWorld(rootScene) {
+  const rand = mulberry32(4219);
+  const obstacles = [];
+  const forageables = [];
+  const barkTex = createBarkTexture();
+  const forestGroup = new THREE.Group();
+  rootScene.add(forestGroup);
+  const scene = forestGroup;
+
+  // 1. PROCEDURAL ATMOSPHERIC SKY DOME
+  const skyUniforms = {
+    uTopColor: { value: new THREE.Color('#2c5d8a') },
+    uHorizonColor: { value: new THREE.Color('#f7b977') },
+    uBottomColor: { value: new THREE.Color('#475c4a') },
+    uSunDir: { value: new THREE.Vector3(0.58, 0.34, -0.74).normalize() },
+    uSunColor: { value: new THREE.Color('#fff1c7') },
+    uTime: { value: 0 },
+    uStarIntensity: { value: 0.0 },
+  };
+
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    depthWrite: false,
+    uniforms: skyUniforms,
+    vertexShader: `
+      varying vec3 vWorldPos;
+      void main() {
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        vWorldPos = wp.xyz;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uTopColor;
+      uniform vec3 uHorizonColor;
+      uniform vec3 uBottomColor;
+      uniform vec3 uSunDir;
+      uniform vec3 uSunColor;
+      uniform float uTime;
+      uniform float uStarIntensity;
+      varying vec3 vWorldPos;
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+      float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        return mix(
+          mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+          mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+          f.y
+        );
+      }
+      float fbm(vec2 p) {
+        float v = 0.0;
+        float a = 0.5;
+        for (int i = 0; i < 4; i++) {
+          v += a * noise(p);
+          p *= 2.04;
+          a *= 0.5;
+        }
+        return v;
+      }
+
+      void main() {
+        vec3 dir = normalize(vWorldPos);
+        float h = dir.y;
+        vec3 col = h >= 0.0
+          ? mix(uHorizonColor, uTopColor, pow(clamp(h, 0.0, 1.0), 0.58))
+          : mix(uHorizonColor, uBottomColor, clamp(-h * 4.0, 0.0, 1.0));
+
+        // Sun glow & crisp sun disc
+        float sunDot = max(dot(dir, normalize(uSunDir)), 0.0);
+        col += uSunColor * pow(sunDot, 10.0) * 0.42;
+        col += uSunColor * pow(sunDot, 90.0) * 0.85;
+        col += vec3(1.0, 0.98, 0.92) * smoothstep(0.9975, 0.9992, sunDot) * 1.4;
+
+        // Soft drifting clouds
+        if (dir.y > 0.03) {
+          vec2 uv = dir.xz / (dir.y + 0.18) * 1.15 + vec2(uTime * 0.008, uTime * 0.004);
+          float c = fbm(uv);
+          float cloudMask = smoothstep(0.48, 0.78, c) * smoothstep(0.03, 0.25, dir.y);
+          vec3 cloudCol = mix(uHorizonColor * 1.15, vec3(1.0, 0.96, 0.9), 0.45 + 0.4 * pow(sunDot, 3.0));
+          col = mix(col, cloudCol, cloudMask * 0.52);
+        }
+
+        // Subtle twilight stars
+        if (uStarIntensity > 0.01 && dir.y > 0.12) {
+          vec2 starUV = floor(dir.xz / (dir.y + 0.2) * 160.0);
+          float s = hash(starUV);
+          if (s > 0.994) {
+            float twinkle = 0.65 + 0.35 * sin(uTime * 3.0 + s * 100.0);
+            col += vec3(0.95, 0.97, 1.0) * uStarIntensity * twinkle * smoothstep(0.12, 0.4, dir.y);
+          }
+        }
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `,
+  });
+  const skyDome = new THREE.Mesh(new THREE.SphereGeometry(140, 32, 24), skyMat);
+  rootScene.add(skyDome);
+
+  // 2. SCULPTED VERTEX-COLORED FOREST TERRAIN
+  const terrainSize = 96;
+  const terrainSegs = 130;
+  const terrainGeo = new THREE.PlaneGeometry(terrainSize, terrainSize, terrainSegs, terrainSegs);
+  terrainGeo.rotateX(-Math.PI / 2);
+
+  const pos = terrainGeo.attributes.position;
+  const colors = new Float32Array(pos.count * 3);
+  const cLushGrass = new THREE.Color('#4a7c3a');
+  const cMossDark = new THREE.Color('#32592c');
+  const cSunlitMeadow = new THREE.Color('#6c9643');
+  const cDirtPath = new THREE.Color('#8e6e4b');
+  const cSandShore = new THREE.Color('#9c8663');
+  const cPondBed = new THREE.Color('#2d473d');
+  const tmpCol = new THREE.Color();
+
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const z = pos.getZ(i);
+    const y = getTerrainHeight(x, z);
+    pos.setY(i, y);
+
+    const n = noise2D(x * 0.14, z * 0.14);
+    tmpCol.copy(cLushGrass).lerp(cSunlitMeadow, n * 0.65);
+    if (n < 0.38) tmpCol.lerp(cMossDark, (0.38 - n) * 1.4);
+
+    // Dirt footpath blending
+    const pf = getPathFactor(x, z);
+    if (pf > 0.05 && y > WATER_LEVEL + 0.12) {
+      tmpCol.lerp(cDirtPath, Math.min(1, pf * 0.85));
+    }
+
+    // Pond shoreline & bed
+    if (y < WATER_LEVEL + 0.35) {
+      const shoreT = THREE.MathUtils.clamp((WATER_LEVEL + 0.35 - y) / 0.55, 0, 1);
+      tmpCol.lerp(cSandShore, shoreT * 0.78);
+    }
+    if (y < WATER_LEVEL - 0.15) {
+      const bedT = THREE.MathUtils.clamp((WATER_LEVEL - 0.15 - y) / 0.7, 0, 1);
+      tmpCol.lerp(cPondBed, bedT * 0.9);
+    }
+
+    colors[i * 3] = tmpCol.r;
+    colors[i * 3 + 1] = tmpCol.g;
+    colors[i * 3 + 2] = tmpCol.b;
+  }
+
+  terrainGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  terrainGeo.computeVertexNormals();
+
+  const terrainMat = new THREE.MeshStandardMaterial({
+    vertexColors: true,
+    roughness: 0.92,
+    metalness: 0.02,
+  });
+  const terrain = new THREE.Mesh(terrainGeo, terrainMat);
+  terrain.receiveShadow = true;
+  scene.add(terrain);
+
+  // 3. ANIMATED GLSL CRYSTAL FOREST POND WATER
+  const waterUniforms = {
+    uTime: { value: 0 },
+    uDeepColor: { value: new THREE.Color('#1a535c') },
+    uShallowColor: { value: new THREE.Color('#4ea89e') },
+    uSunDir: { value: skyUniforms.uSunDir.value },
+    uSunColor: { value: new THREE.Color('#ffdfa0') },
+  };
+
+  const waterMat = new THREE.ShaderMaterial({
+    transparent: true,
+    uniforms: waterUniforms,
+    vertexShader: `
+      uniform float uTime;
+      varying vec2 vUv;
+      varying vec3 vWorldPos;
+      void main() {
+        vUv = uv;
+        vec3 p = position;
+        p.z += sin(p.x * 1.4 + uTime * 1.8) * 0.025 + cos(p.y * 1.7 - uTime * 1.5) * 0.02;
+        vec4 wp = modelMatrix * vec4(p, 1.0);
+        vWorldPos = wp.xyz;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform vec3 uDeepColor;
+      uniform vec3 uShallowColor;
+      uniform vec3 uSunDir;
+      uniform vec3 uSunColor;
+      varying vec2 vUv;
+      varying vec3 vWorldPos;
+
+      void main() {
+        vec2 c = vUv * 2.0 - 1.0;
+        float dist = length(c);
+        if (dist > 1.0) discard;
+
+        // Rippling normal perturbation
+        float r1 = sin(vWorldPos.x * 2.8 + uTime * 2.1) * cos(vWorldPos.z * 2.5 - uTime * 1.7);
+        float r2 = sin((vWorldPos.x + vWorldPos.z) * 4.2 - uTime * 2.6);
+        vec3 n = normalize(vec3((r1 + r2) * 0.06, 1.0, (r1 - r2) * 0.06));
+
+        vec3 viewDir = normalize(cameraPosition - vWorldPos);
+        float fresnel = pow(1.0 - max(dot(viewDir, n), 0.0), 3.0);
+
+        vec3 waterCol = mix(uDeepColor, uShallowColor, smoothstep(0.2, 0.92, dist));
+        // Subtle caustics sparkle
+        float caustic = smoothstep(0.65, 0.98, 0.5 + 0.5 * sin(vWorldPos.x * 5.0 + uTime * 1.5) * sin(vWorldPos.z * 5.0 - uTime * 1.2));
+        waterCol += vec3(0.18, 0.32, 0.28) * caustic * 0.35;
+
+        // Sun specular shimmer
+        vec3 halfVec = normalize(normalize(uSunDir) + viewDir);
+        float spec = pow(max(dot(n, halfVec), 0.0), 64.0);
+        waterCol += uSunColor * spec * 1.15;
+
+        // Sky reflection tint
+        waterCol = mix(waterCol, uSunColor * 0.85, fresnel * 0.42);
+
+        // Soft shoreline foam edge
+        float foam = smoothstep(0.84, 0.97, dist + r1 * 0.03);
+        waterCol = mix(waterCol, vec3(0.92, 0.97, 0.94), foam * 0.5);
+
+        float alpha = smoothstep(1.0, 0.88, dist) * 0.86;
+        gl_FragColor = vec4(waterCol, alpha);
+      }
+    `,
+  });
+
+  const waterGeo = new THREE.CircleGeometry(POND_RADIUS + 0.6, 48);
+  const waterMesh = new THREE.Mesh(waterGeo, waterMat);
+  waterMesh.rotation.x = -Math.PI / 2;
+  waterMesh.position.set(POND_CENTER.x, WATER_LEVEL, POND_CENTER.y);
+  scene.add(waterMesh);
+
+  // Lily pads & blooming water lilies on the pond
+  const lilyMat = new THREE.MeshStandardMaterial({ color: '#3b8c47', roughness: 0.55 });
+  const lotusMat = new THREE.MeshStandardMaterial({
+    color: '#ffb7d0',
+    emissive: '#ff7aa8',
+    emissiveIntensity: 0.18,
+    roughness: 0.4,
+  });
+  for (let i = 0; i < 14; i++) {
+    const a = rand() * Math.PI * 2;
+    const rad = 1.6 + rand() * (POND_RADIUS - 2.6);
+    const lx = POND_CENTER.x + Math.cos(a) * rad;
+    const lz = POND_CENTER.y + Math.sin(a) * rad;
+    const pad = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.32 + rand() * 0.24, 0.32 + rand() * 0.24, 0.03, 14, 1, false, 0, Math.PI * 1.85),
+      lilyMat
+    );
+    pad.position.set(lx, WATER_LEVEL + 0.02, lz);
+    pad.rotation.y = rand() * Math.PI * 2;
+    scene.add(pad);
+
+    if (i % 3 === 0) {
+      const flower = new THREE.Mesh(new THREE.DodecahedronGeometry(0.14, 0), lotusMat);
+      flower.scale.set(1.2, 0.65, 1.2);
+      flower.position.set(lx, WATER_LEVEL + 0.09, lz);
+      scene.add(flower);
+    }
+  }
+
+  // 4. VOLUMETRIC GOD-RAYS (SUNBEAMS)
+  const sunbeamGroup = new THREE.Group();
+  const beamMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+    uniforms: {
+      uColor: { value: new THREE.Color('#ffdca2') },
+      uIntensity: { value: 0.11 },
+      uTime: { value: 0 },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      varying vec3 vNormal;
+      varying vec3 vViewDir;
+      void main() {
+        vUv = uv;
+        vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+        vNormal = normalize(normalMatrix * normal);
+        vViewDir = normalize(-mvPos.xyz);
+        gl_Position = projectionMatrix * mvPos;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor;
+      uniform float uIntensity;
+      uniform float uTime;
+      varying vec2 vUv;
+      varying vec3 vNormal;
+      varying vec3 vViewDir;
+      void main() {
+        float edge = pow(abs(dot(vNormal, vViewDir)), 1.6);
+        float vertical = smoothstep(0.0, 0.35, vUv.y) * smoothstep(1.0, 0.15, vUv.y);
+        float shimmer = 0.85 + 0.15 * sin(uTime * 0.9 + vUv.x * 12.0);
+        float alpha = edge * vertical * uIntensity * shimmer;
+        gl_FragColor = vec4(uColor, alpha);
+      }
+    `,
+  });
+
+  const beamCoords = [
+    [2, 3], [-3, 9], [10, -4], [-13, 6], [6, -12], [-2, -13], [14, 9],
+  ];
+  beamCoords.forEach(([bx, bz]) => {
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 3.6, 26, 16, 1, true), beamMat);
+    beam.position.set(bx, 11, bz);
+    beam.rotation.z = -0.34;
+    beam.rotation.x = 0.24;
+    sunbeamGroup.add(beam);
+  });
+  scene.add(sunbeamGroup);
+
+  // 5. TREES (Towering Pacific-Northwest Pines + Lush Deciduous Oaks + Wild Apple Tree)
+  const trunkMat = new THREE.MeshStandardMaterial({ map: barkTex, roughness: 0.92 });
+  const pinePalette = ['#1f4d2e', '#265c36', '#2e6b3e', '#1a4228'];
+  const oakPalette = ['#4b7f35', '#5d933a', '#7aa442', '#d99838']; // lush greens + warm golden-hour amber canopy!
+
+  function createPineTree(x, z, scale = 1) {
+    const g = new THREE.Group();
+    const y = getTerrainHeight(x, z);
+    g.position.set(x, y - 0.15, z);
+
+    const trunkH = 2.6 * scale;
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18 * scale, 0.36 * scale, trunkH, 7),
+      trunkMat
+    );
+    trunk.position.y = trunkH * 0.5;
+    trunk.castShadow = true;
+    trunk.receiveShadow = true;
+    g.add(trunk);
+
+    const col = pinePalette[Math.floor(rand() * pinePalette.length)];
+    const foliageMat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.82, flatShading: true });
+
+    const tiers = 4;
+    for (let t = 0; t < tiers; t++) {
+      const r = (2.1 - t * 0.42) * scale;
+      const h = (2.5 - t * 0.25) * scale;
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(r, h, 8), foliageMat);
+      cone.position.y = (2.2 + t * 1.45) * scale;
+      cone.rotation.y = rand() * Math.PI;
+      cone.castShadow = true;
+      cone.receiveShadow = true;
+      g.add(cone);
+    }
+
+    scene.add(g);
+    return g;
+  }
+
+  function createDeciduousTree(x, z, scale = 1, isAppleTree = false) {
+    const g = new THREE.Group();
+    const y = getTerrainHeight(x, z);
+    g.position.set(x, y - 0.12, z);
+
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.22 * scale, 0.42 * scale, 3.2 * scale, 8),
+      trunkMat
+    );
+    trunk.position.y = 1.6 * scale;
+    trunk.castShadow = true;
+    trunk.receiveShadow = true;
+    g.add(trunk);
+
+    const col = isAppleTree ? '#568d38' : oakPalette[Math.floor(rand() * oakPalette.length)];
+    const leafMat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.78, flatShading: true });
+
+    const puffs = [
+      [0, 3.8, 0, 1.9],
+      [-1.1, 3.2, 0.7, 1.35],
+      [1.2, 3.3, -0.5, 1.4],
+      [0.4, 3.1, 1.1, 1.25],
+      [-0.7, 4.4, -0.6, 1.3],
+    ];
+    puffs.forEach(([px, py, pz, pr]) => {
+      const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(pr * scale, 1), leafMat);
+      puff.position.set(px * scale, py * scale, pz * scale);
+      puff.castShadow = true;
+      puff.receiveShadow = true;
+      g.add(puff);
+    });
+
+    if (isAppleTree) {
+      const appleMat = new THREE.MeshStandardMaterial({ color: '#e63946', roughness: 0.3 });
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2;
+        const ap = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), appleMat);
+        ap.position.set(Math.cos(a) * 1.5 * scale, (2.6 + (i % 3) * 0.4) * scale, Math.sin(a) * 1.5 * scale);
+        g.add(ap);
+      }
+    }
+
+    scene.add(g);
+    return g;
+  }
+
+  // Hero Wild Apple Tree in the sunny eastern clearing
+  const appleTreePos = new THREE.Vector2(13.5, 4.5);
+  createDeciduousTree(appleTreePos.x, appleTreePos.y, 1.18, true);
+  obstacles.push({ x: appleTreePos.x, z: appleTreePos.y, radius: 0.9 });
+
+  // Place playable-area trees cleanly framing the open meadow & path (uncluttered sightlines!)
+  for (let i = 0; i < 24; i++) {
+    const a = rand() * Math.PI * 2;
+    const r = 9.5 + rand() * (MAP_RADIUS - 9.5);
+    const tx = Math.cos(a) * r;
+    const tz = Math.sin(a) * r;
+
+    if (isInPond(tx, tz, -2.5)) continue;
+    if (Math.abs(tx - getMainTrailCenterX(tz)) < 5.4 && tz > -22 && tz < 15) continue;
+    if (Math.hypot(tx - 1.5, tz - 9.0) < 7.5) continue;
+    if (Math.hypot(tx - PORTAL_POS.x, tz - PORTAL_POS.z) < 8.0) continue;
+    if (Math.hypot(tx - appleTreePos.x, tz - appleTreePos.y) < 5.2) continue;
+    if (obstacles.some((o) => Math.hypot(o.x - tx, o.z - tz) < 4.5)) continue;
+
+    const sc = 0.95 + rand() * 0.6;
+    if (rand() < 0.65) {
+      createPineTree(tx, tz, sc);
+    } else {
+      createDeciduousTree(tx, tz, sc);
+    }
+    obstacles.push({ x: tx, z: tz, radius: 0.65 * sc });
+  }
+
+  // Dense outer forest ring so the small map feels nestled in an endless wilderness
+  for (let i = 0; i < 95; i++) {
+    const a = (i / 95) * Math.PI * 2 + (rand() - 0.5) * 0.1;
+    const r = MAP_RADIUS + 2.2 + rand() * 14;
+    const tx = Math.cos(a) * r;
+    const tz = Math.sin(a) * r;
+    const sc = 1.05 + rand() * 0.85;
+    if (rand() < 0.78) createPineTree(tx, tz, sc);
+    else createDeciduousTree(tx, tz, sc);
+  }
+
+  // 6. MOSSY BOULDERS, STEPPING STONES, FALLEN LOGS & COZY LANTERN STUMP
+  const rockMat = new THREE.MeshStandardMaterial({ color: '#6b7068', roughness: 0.92, flatShading: true });
+  const mossCapMat = new THREE.MeshStandardMaterial({ color: '#4d7e39', roughness: 0.88, flatShading: true });
+
+  // Subtle flat stepping stones embedded along the graceful winding path (natural visual guide!)
+  const stepStoneMat = new THREE.MeshStandardMaterial({ color: '#9e927f', roughness: 0.88 });
+  for (let sz = 10.5; sz >= -17.5; sz -= 2.35) {
+    const sx = getMainTrailCenterX(sz) + Math.sin(sz * 1.3) * 0.35;
+    const sy = getTerrainHeight(sx, sz);
+    const stone = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.08, 7), stepStoneMat);
+    stone.scale.set(1.18, 1, 0.85);
+    stone.position.set(sx, sy + 0.02, sz);
+    stone.rotation.y = sz * 0.7;
+    stone.receiveShadow = true;
+    scene.add(stone);
+  }
+
+  for (let i = 0; i < 10; i++) {
+    const a = rand() * Math.PI * 2;
+    const r = 9.5 + rand() * (MAP_RADIUS - 11);
+    const rx = Math.cos(a) * r;
+    const rz = Math.sin(a) * r;
+    if (Math.abs(rx - getMainTrailCenterX(rz)) < 5.0) continue;
+    if (isInPond(rx, rz, -1.5)) continue;
+    if (obstacles.some((o) => Math.hypot(o.x - rx, o.z - rz) < 3.4)) continue;
+
+    const sc = 0.55 + rand() * 0.85;
+    const ry = getTerrainHeight(rx, rz);
+    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(sc, 1), rockMat);
+    rock.scale.set(1.2, 0.72, 1.0);
+    rock.position.set(rx, ry + sc * 0.25, rz);
+    rock.rotation.set(rand(), rand(), rand());
+    rock.castShadow = true;
+    rock.receiveShadow = true;
+    scene.add(rock);
+
+    const cap = new THREE.Mesh(new THREE.DodecahedronGeometry(sc * 0.65, 0), mossCapMat);
+    cap.scale.set(1.2, 0.35, 1.0);
+    cap.position.set(rx, ry + sc * 0.62, rz);
+    scene.add(cap);
+
+    if (sc > 0.75) {
+      obstacles.push({ x: rx, z: rz, radius: sc * 0.95 });
+    }
+  }
+
+  // Cozy Forest Lantern Stump near the starting glade (casts warm inviting light!)
+  const stumpX = 4.8;
+  const stumpZ = 2.4;
+  const stumpY = getTerrainHeight(stumpX, stumpZ);
+  const stumpGroup = new THREE.Group();
+  stumpGroup.position.set(stumpX, stumpY, stumpZ);
+
+  const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.72, 0.75, 10), trunkMat);
+  stump.position.y = 0.35;
+  stump.castShadow = true;
+  stump.receiveShadow = true;
+  stumpGroup.add(stump);
+
+  // Brass & glowing glass camping lantern
+  const lanternBase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16, 0.19, 0.08, 8),
+    new THREE.MeshStandardMaterial({ color: '#3b3228', metalness: 0.7, roughness: 0.35 })
+  );
+  lanternBase.position.y = 0.76;
+  stumpGroup.add(lanternBase);
+
+  const lanternGlass = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.12, 0.24, 8),
+    new THREE.MeshStandardMaterial({
+      color: '#ffdf9e',
+      emissive: '#ffaa3b',
+      emissiveIntensity: 2.2,
+      roughness: 0.2,
+    })
+  );
+  lanternGlass.position.y = 0.92;
+  stumpGroup.add(lanternGlass);
+
+  const lanternCap = new THREE.Mesh(
+    new THREE.ConeGeometry(0.2, 0.12, 8),
+    new THREE.MeshStandardMaterial({ color: '#3b3228', metalness: 0.7, roughness: 0.35 })
+  );
+  lanternCap.position.y = 1.09;
+  stumpGroup.add(lanternCap);
+
+  const lanternLight = new THREE.PointLight('#ffad4d', 3.5, 14, 1.5);
+  lanternLight.position.y = 1.15;
+  stumpGroup.add(lanternLight);
+  scene.add(stumpGroup);
+  obstacles.push({ x: stumpX, z: stumpZ, radius: 0.8 });
+
+  // Fallen mossy logs tucked off to the scenic sides (never blocking the path!)
+  const logCoords = [
+    [11.0, -9.5, -0.8],
+    [-16.0, 4.5, 1.1],
+  ];
+  logCoords.forEach(([lx, lz, rot]) => {
+    const ly = getTerrainHeight(lx, lz);
+    const log = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.38, 3.8, 9), trunkMat);
+    log.rotation.z = Math.PI / 2;
+    log.rotation.y = rot;
+    log.position.set(lx, ly + 0.24, lz);
+    log.castShadow = true;
+    log.receiveShadow = true;
+    scene.add(log);
+    obstacles.push({ x: lx, z: lz, radius: 1.1 });
+  });
+
+  // 7. INSTANCED WIND-SWAYING GRASS (clean, uncluttered meadow framing the sunlit path!)
+  const grassCount = 2400;
+  const bladeGeo = new THREE.ConeGeometry(0.05, 0.44, 3);
+  bladeGeo.translate(0, 0.22, 0);
+
+  const grassUniforms = { uTime: { value: 0 } };
+  const grassMat = new THREE.MeshStandardMaterial({
+    color: '#6ea344',
+    roughness: 0.85,
+    side: THREE.DoubleSide,
+  });
+
+  grassMat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = grassUniforms.uTime;
+    shader.vertexShader = `uniform float uTime;\n` + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `
+      #include <begin_vertex>
+      vec4 worldInstance = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+      float sway = sin(uTime * 2.1 + worldInstance.x * 0.45 + worldInstance.z * 0.35) * 0.14
+                 + sin(uTime * 3.8 + worldInstance.x * 0.9) * 0.04;
+      transformed.x += sway * (position.y * 2.1);
+      transformed.z += sway * 0.5 * (position.y * 2.1);
+      `
+    );
+  };
+
+  const grassMesh = new THREE.InstancedMesh(bladeGeo, grassMat, grassCount);
+  grassMesh.receiveShadow = true;
+
+  const dummy = new THREE.Object3D();
+  const gColor = new THREE.Color();
+  let placedGrass = 0;
+  for (let i = 0; i < grassCount * 2 && placedGrass < grassCount; i++) {
+    const a = rand() * Math.PI * 2;
+    const r = Math.sqrt(rand()) * (MAP_RADIUS + 1.5);
+    const gx = Math.cos(a) * r;
+    const gz = Math.sin(a) * r;
+    if (isInPond(gx, gz, -0.3)) continue;
+    if (getPathFactor(gx, gz) > 0.18) continue;
+
+    const gy = getTerrainHeight(gx, gz);
+    dummy.position.set(gx, gy - 0.04, gz);
+    dummy.rotation.set((rand() - 0.5) * 0.25, rand() * Math.PI * 2, (rand() - 0.5) * 0.25);
+    const s = 0.65 + rand() * 0.95;
+    dummy.scale.set(s, s * (0.8 + rand() * 0.7), s);
+    dummy.updateMatrix();
+    grassMesh.setMatrixAt(placedGrass, dummy.matrix);
+
+    gColor.setHSL(0.24 + (rand() - 0.5) * 0.07, 0.48 + rand() * 0.15, 0.33 + rand() * 0.16);
+    grassMesh.setColorAt(placedGrass, gColor);
+    placedGrass++;
+  }
+  grassMesh.count = placedGrass;
+  grassMesh.instanceMatrix.needsUpdate = true;
+  if (grassMesh.instanceColor) grassMesh.instanceColor.needsUpdate = true;
+  scene.add(grassMesh);
+
+  // Wildflower Clusters (pops of golden buttercup, lavender, and coral)
+  const flowerColors = ['#ffd166', '#f497b6', '#b8a4ff', '#fff4d4'];
+  const flowerGeo = new THREE.DodecahedronGeometry(0.08, 0);
+  const flowerMat = new THREE.MeshStandardMaterial({ roughness: 0.5 });
+  const flowerCount = 260;
+  const flowerMesh = new THREE.InstancedMesh(flowerGeo, flowerMat, flowerCount);
+  let fIdx = 0;
+  for (let i = 0; i < 450 && fIdx < flowerCount; i++) {
+    const a = rand() * Math.PI * 2;
+    const r = 3 + Math.sqrt(rand()) * (MAP_RADIUS - 4);
+    const fx = Math.cos(a) * r;
+    const fz = Math.sin(a) * r;
+    if (isInPond(fx, fz, -0.6) || getPathFactor(fx, fz) > 0.55) continue;
+    const fy = getTerrainHeight(fx, fz);
+    dummy.position.set(fx, fy + 0.16 + rand() * 0.12, fz);
+    dummy.rotation.set(rand(), rand(), rand());
+    const s = 0.75 + rand() * 0.75;
+    dummy.scale.set(s, s, s);
+    dummy.updateMatrix();
+    flowerMesh.setMatrixAt(fIdx, dummy.matrix);
+    gColor.set(flowerColors[Math.floor(rand() * flowerColors.length)]);
+    flowerMesh.setColorAt(fIdx, gColor);
+    fIdx++;
+  }
+  flowerMesh.count = fIdx;
+  flowerMesh.instanceMatrix.needsUpdate = true;
+  if (flowerMesh.instanceColor) flowerMesh.instanceColor.needsUpdate = true;
+  scene.add(flowerMesh);
+
+  // 8. FORAGEABLE FOREST FOODS (18 handcrafted spots)
+  function spawnForageable(type, label, x, z) {
+    const y = getTerrainHeight(x, z);
+    const group = new THREE.Group();
+    group.position.set(x, y, z);
+
+    // Soft glowing beacon ring / halo on ground so it feels magical & easy to spot
+    const glowColor =
+      type === 'berry' ? '#6b8eff' :
+      type === 'mushroom' ? '#ffb84d' :
+      type === 'apple' ? '#ff5c5c' :
+      type === 'strawberry' ? '#ff6996' : '#ffe675';
+
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.32, 0.44, 24),
+      new THREE.MeshBasicMaterial({
+        color: glowColor,
+        transparent: true,
+        opacity: 0.42,
+        side: THREE.DoubleSide,
+      })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.05;
+    group.add(ring);
+
+    const visual = new THREE.Group();
+
+    if (type === 'berry') {
+      const bushMat = new THREE.MeshStandardMaterial({ color: '#2e6f3b', roughness: 0.85, flatShading: true });
+      const bush = new THREE.Mesh(new THREE.DodecahedronGeometry(0.45, 1), bushMat);
+      bush.scale.set(1.2, 0.85, 1.2);
+      bush.position.y = 0.32;
+      bush.castShadow = true;
+      visual.add(bush);
+
+      const berryMat = new THREE.MeshStandardMaterial({
+        color: '#3f63ff',
+        emissive: '#2238a8',
+        emissiveIntensity: 0.55,
+        roughness: 0.25,
+      });
+      for (let i = 0; i < 9; i++) {
+        const ba = (i / 9) * Math.PI * 2;
+        const b = new THREE.Mesh(new THREE.SphereGeometry(0.075, 8, 8), berryMat);
+        b.position.set(Math.cos(ba) * 0.34, 0.35 + (i % 3) * 0.12, Math.sin(ba) * 0.34);
+        visual.add(b);
+      }
+    } else if (type === 'mushroom') {
+      const stemMat = new THREE.MeshStandardMaterial({ color: '#f5ebd6', roughness: 0.7 });
+      const capMat = new THREE.MeshStandardMaterial({
+        color: '#f29f3d',
+        emissive: '#d97614',
+        emissiveIntensity: 0.55,
+        roughness: 0.4,
+      });
+      const offsets = [[0, 0, 1.0], [0.22, 0.14, 0.72], [-0.18, 0.16, 0.65]];
+      offsets.forEach(([ox, oz, s]) => {
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.05 * s, 0.07 * s, 0.28 * s, 7), stemMat);
+        stem.position.set(ox, 0.14 * s, oz);
+        visual.add(stem);
+        const cap = new THREE.Mesh(new THREE.SphereGeometry(0.18 * s, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.58), capMat);
+        cap.position.set(ox, 0.26 * s, oz);
+        visual.add(cap);
+      });
+    } else if (type === 'apple') {
+      const apMat = new THREE.MeshStandardMaterial({
+        color: '#e83845',
+        emissive: '#78141c',
+        emissiveIntensity: 0.4,
+        roughness: 0.25,
+      });
+      const leafMat = new THREE.MeshStandardMaterial({ color: '#53a645', roughness: 0.6 });
+      [[0, 0], [0.22, 0.12], [-0.16, 0.18]].forEach(([ox, oz]) => {
+        const ap = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 10), apMat);
+        ap.scale.set(1.0, 0.92, 1.0);
+        ap.position.set(ox, 0.14, oz);
+        ap.castShadow = true;
+        visual.add(ap);
+        const lf = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.02, 0.05), leafMat);
+        lf.position.set(ox + 0.05, 0.28, oz);
+        lf.rotation.z = 0.4;
+        visual.add(lf);
+      });
+    } else if (type === 'strawberry') {
+      const leafMat = new THREE.MeshStandardMaterial({ color: '#3b8242', roughness: 0.8 });
+      const patch = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.44, 0.12, 8), leafMat);
+      patch.position.y = 0.07;
+      visual.add(patch);
+      const sbMat = new THREE.MeshStandardMaterial({
+        color: '#ff4275',
+        emissive: '#a61442',
+        emissiveIntensity: 0.45,
+        roughness: 0.35,
+      });
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2;
+        const sb = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.16, 7), sbMat);
+        sb.rotation.x = Math.PI;
+        sb.position.set(Math.cos(a) * 0.2, 0.2, Math.sin(a) * 0.2);
+        visual.add(sb);
+      }
+    } else if (type === 'truffle') {
+      const trMat = new THREE.MeshStandardMaterial({
+        color: '#ffd859',
+        emissive: '#ffaa00',
+        emissiveIntensity: 1.15,
+        roughness: 0.3,
+        metalness: 0.25,
+      });
+      const tr = new THREE.Mesh(new THREE.DodecahedronGeometry(0.18, 1), trMat);
+      tr.position.y = 0.24;
+      tr.castShadow = true;
+      visual.add(tr);
+    }
+
+    group.add(visual);
+    scene.add(group);
+
+    forageables.push({
+      id: forageables.length,
+      type,
+      label,
+      position: new THREE.Vector3(x, y, z),
+      group,
+      visual,
+      ring,
+      collected: false,
+      phase: rand() * Math.PI * 2,
+    });
+  }
+
+  // Hand-placed scenic spots around the glade
+  const spots = [
+    // Wild Blueberries (4)
+    ['berry', 'Wild Blueberries', -2.5, 11.5],
+    ['berry', 'Wild Blueberries', 8.5, 11.2],
+    ['berry', 'Wild Blueberries', -15.5, -1.5],
+    ['berry', 'Wild Blueberries', 4.5, -15.5],
+    // Forest Mushrooms (5)
+    ['mushroom', 'Honey Mushrooms', -1.8, -12.5],
+    ['mushroom', 'Chanterelle Mushrooms', 10.5, -8.5],
+    ['mushroom', 'Honey Mushrooms', -15.0, 5.2],
+    ['mushroom', 'Chanterelle Mushrooms', -9.5, 14.2],
+    ['mushroom', 'Honey Mushrooms', 17.5, -2.5],
+    // Crisp Forest Apples near the Apple Tree (3)
+    ['apple', 'Crisp Forest Apples', 11.8, 3.8],
+    ['apple', 'Crisp Forest Apples', 15.2, 5.6],
+    ['apple', 'Crisp Forest Apples', 13.0, 6.8],
+    // Wild Strawberries (4)
+    ['strawberry', 'Wild Strawberries', 6.5, 6.5],
+    ['strawberry', 'Wild Strawberries', -4.2, 4.8],
+    ['strawberry', 'Wild Strawberries', 2.2, -7.2],
+    ['strawberry', 'Wild Strawberries', 15.5, 11.5],
+    // Rare Golden Truffles (2)
+    ['truffle', 'Rare Golden Truffle', -14.8, -13.2],
+    ['truffle', 'Rare Golden Truffle', 16.5, -12.8],
+  ];
+
+  spots.forEach(([type, label, x, z]) => spawnForageable(type, label, x, z));
+
+  // 9. CLEAR TRAIL LANTERN POSTS LEADING NORTH TO THE MEDIEVAL "VIRGINIA" PORTAL
+  const postWoodMat = new THREE.MeshStandardMaterial({ color: '#4a3525', roughness: 0.88 });
+  const glowLampMat = new THREE.MeshStandardMaterial({
+    color: '#ffe8b0',
+    emissive: '#ffb84d',
+    emissiveIntensity: 2.0,
+    roughness: 0.2,
+  });
+  [-15.5, -9.5, -3.0, 3.5].forEach((lz, idx) => {
+    const cx = Math.sin((lz + 20.5) * 0.14) * 2.4;
+    const lx = cx + (idx % 2 === 0 ? 2.3 : -2.3);
+    if (isInPond(lx, lz, -0.8)) return;
+    const ly = getTerrainHeight(lx, lz);
+    const post = new THREE.Group();
+    post.position.set(lx, ly, lz);
+
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.11, 2.2, 7), postWoodMat);
+    pole.position.y = 1.1;
+    pole.castShadow = true;
+    post.add(pole);
+
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.08, 0.08), postWoodMat);
+    arm.position.set(idx % 2 === 0 ? -0.22 : 0.22, 2.05, 0);
+    post.add(arm);
+
+    const lamp = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), glowLampMat);
+    lamp.position.set(idx % 2 === 0 ? -0.42 : 0.42, 1.84, 0);
+    post.add(lamp);
+
+    scene.add(post);
+  });
+
+  // 10. MEDIEVAL STONE ARCHWAY & SWIRLING "VIRGINIA" PORTAL
+  const portalY = getTerrainHeight(PORTAL_POS.x, PORTAL_POS.z);
+  const portalGroup = new THREE.Group();
+  portalGroup.position.set(PORTAL_POS.x, portalY, PORTAL_POS.z);
+
+  const stoneMat = new THREE.MeshStandardMaterial({ color: '#6b6d66', roughness: 0.92, flatShading: true });
+  const stoneDarkMat = new THREE.MeshStandardMaterial({ color: '#4b4e48', roughness: 0.94, flatShading: true });
+  const goldTrimMat = new THREE.MeshStandardMaterial({ color: '#cfa34e', metalness: 0.65, roughness: 0.35 });
+
+  // Stepped medieval stone dais
+  const dais1 = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.28, 3.6), stoneDarkMat);
+  dais1.position.y = 0.12;
+  dais1.receiveShadow = true;
+  portalGroup.add(dais1);
+
+  const dais2 = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.22, 2.8), stoneMat);
+  dais2.position.y = 0.32;
+  dais2.receiveShadow = true;
+  portalGroup.add(dais2);
+
+  // Two carved medieval stone pillars
+  [-2.25, 2.25].forEach((px) => {
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.7, 1.15), stoneDarkMat);
+    base.position.set(px, 0.75, 0);
+    base.castShadow = true;
+    portalGroup.add(base);
+
+    const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.84, 3.1, 0.84), stoneMat);
+    pillar.position.set(px, 2.55, 0);
+    pillar.castShadow = true;
+    pillar.receiveShadow = true;
+    portalGroup.add(pillar);
+
+    // Carved capital + medieval finial
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(1.12, 0.38, 1.12), stoneDarkMat);
+    cap.position.set(px, 4.18, 0);
+    cap.castShadow = true;
+    portalGroup.add(cap);
+
+    // Flickering medieval iron brazier bowl on front pedestals
+    const brazierStand = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 1.05, 8), stoneDarkMat);
+    brazierStand.position.set(px * 1.18, 0.85, 1.2);
+    portalGroup.add(brazierStand);
+
+    const flame = new THREE.Mesh(
+      new THREE.DodecahedronGeometry(0.24, 0),
+      new THREE.MeshStandardMaterial({
+        color: '#ffd97d',
+        emissive: '#ff8822',
+        emissiveIntensity: 2.6,
+        roughness: 0.2,
+      })
+    );
+    flame.position.set(px * 1.18, 1.52, 1.2);
+    portalGroup.add(flame);
+
+    obstacles.push({ x: PORTAL_POS.x + px, z: PORTAL_POS.z, radius: 0.75 });
+  });
+
+  // Medieval segmented stone arch voussoirs
+  const archSegments = 11;
+  for (let i = 0; i < archSegments; i++) {
+    const t = i / (archSegments - 1);
+    const angle = Math.PI * (1 - t);
+    const ax = Math.cos(angle) * 2.25;
+    const ay = 3.85 + Math.sin(angle) * 1.35;
+    const block = new THREE.Mesh(
+      new THREE.BoxGeometry(0.76, 0.56, 1.02),
+      i === 5 ? stoneDarkMat : stoneMat
+    );
+    block.position.set(ax, ay, 0);
+    block.rotation.z = angle - Math.PI / 2;
+    block.castShadow = true;
+    portalGroup.add(block);
+  }
+
+  // Prominent Medieval Carved Stone Banner Plaque at the top: "VIRGINIA"
+  const plaqueTex = createVirginiaPlaqueTexture();
+  const plaqueBack = new THREE.Mesh(new THREE.BoxGeometry(4.5, 1.15, 0.42), stoneDarkMat);
+  plaqueBack.position.set(0, 5.25, 0.22);
+  plaqueBack.castShadow = true;
+  portalGroup.add(plaqueBack);
+
+  const plaqueFace = new THREE.Mesh(
+    new THREE.PlaneGeometry(4.25, 1.02),
+    new THREE.MeshStandardMaterial({
+      map: plaqueTex,
+      roughness: 0.6,
+      emissive: '#594216',
+      emissiveIntensity: 0.45,
+    })
+  );
+  plaqueFace.position.set(0, 5.25, 0.44);
+  portalGroup.add(plaqueFace);
+
+  // Ornamental gold medieval crest crown above plaque
+  const crest = new THREE.Mesh(new THREE.OctahedronGeometry(0.28, 0), goldTrimMat);
+  crest.scale.set(1.2, 1.5, 0.5);
+  crest.position.set(0, 6.02, 0.22);
+  portalGroup.add(crest);
+
+  // Swirling Magical GLSL Portal Vortex inside the archway!
+  const portalUniforms = {
+    uTime: { value: 0 },
+  };
+  const portalMat = new THREE.ShaderMaterial({
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: portalUniforms,
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      varying vec2 vUv;
+      void main() {
+        vec2 p = vUv * 2.0 - 1.0;
+        p.y *= 1.15;
+        float r = length(p);
+        float a = atan(p.y, p.x);
+
+        float swirl = sin(r * 10.0 - uTime * 3.6 + a * 3.0) * 0.5 + 0.5;
+        float ripple = sin(r * 18.0 - uTime * 5.2 - a * 2.0) * 0.5 + 0.5;
+
+        vec3 coreGold = vec3(1.0, 0.88, 0.55);
+        vec3 outerBlue = vec3(0.24, 0.58, 1.0);
+        vec3 midTeal = vec3(0.38, 0.88, 0.82);
+
+        vec3 col = mix(coreGold, midTeal, smoothstep(0.1, 0.65, r));
+        col = mix(col, outerBlue, smoothstep(0.55, 0.98, r));
+        col += vec3(0.35, 0.28, 0.12) * swirl * ripple;
+
+        float edgeMask = smoothstep(1.0, 0.62, r);
+        float alpha = edgeMask * (0.68 + 0.28 * swirl);
+        gl_FragColor = vec4(col, alpha);
+      }
+    `,
+  });
+
+  const portalVortex = new THREE.Mesh(new THREE.PlaneGeometry(3.65, 4.1), portalMat);
+  portalVortex.position.set(0, 2.5, 0.02);
+  portalGroup.add(portalVortex);
+
+  const portalLight = new THREE.PointLight('#ffd27d', 5.5, 16, 1.4);
+  portalLight.position.set(0, 3.2, 1.2);
+  portalGroup.add(portalLight);
+
+  scene.add(portalGroup);
+
+  return {
+    forestGroup,
+    obstacles,
+    forageables,
+    skyUniforms,
+    waterUniforms,
+    grassUniforms,
+    beamMat,
+    lanternLight,
+    portalPos: new THREE.Vector3(PORTAL_POS.x, portalY, PORTAL_POS.z),
+    update(elapsed) {
+      skyUniforms.uTime.value = elapsed;
+      waterUniforms.uTime.value = elapsed;
+      grassUniforms.uTime.value = elapsed;
+      beamMat.uniforms.uTime.value = elapsed;
+      portalUniforms.uTime.value = elapsed;
+      portalLight.intensity = 5.2 + Math.sin(elapsed * 3.8) * 1.1;
+      lanternLight.intensity = 3.2 + Math.sin(elapsed * 5.2) * 0.35 + Math.cos(elapsed * 8.7) * 0.15;
+
+      // Gentle bob & pulse on uncollected forageables
+      for (const f of forageables) {
+        if (f.collected) continue;
+        const p = elapsed * 2.2 + f.phase;
+        f.ring.material.opacity = 0.28 + Math.sin(p) * 0.18;
+        const rs = 0.94 + Math.sin(p) * 0.08;
+        f.ring.scale.set(rs, rs, 1);
+        if (f.type === 'truffle') {
+          f.visual.position.y = Math.sin(p * 1.2) * 0.08;
+          f.visual.rotation.y = elapsed * 0.9;
+        }
+      }
+    },
+  };
+}
+
+
+// === campus.js ===
+
+
+function createEVMSCampus(rootScene) {
+  const campusGroup = new THREE.Group();
+  campusGroup.visible = false;
+  rootScene.add(campusGroup);
+
+  const obstacles = [];
+
+  // Materials matching the warm limestone & glowing twilight glass of the EVMS Brickell building
+  const limestoneMat = new THREE.MeshStandardMaterial({ color: '#d8d1c4', roughness: 0.78 });
+  const limestoneTrimMat = new THREE.MeshStandardMaterial({ color: '#c4bcae', roughness: 0.82 });
+  const darkBrickMat = new THREE.MeshStandardMaterial({ color: '#7a4538', roughness: 0.88 });
+  const plazaMat = new THREE.MeshStandardMaterial({ color: '#9c8f80', roughness: 0.85 });
+  const walkwayMat = new THREE.MeshStandardMaterial({ color: '#8f4f3f', roughness: 0.82 });
+  const warmGlassMat = new THREE.MeshStandardMaterial({
+    color: '#ffe5a8',
+    emissive: '#ffb957',
+    emissiveIntensity: 1.15,
+    roughness: 0.15,
+    metalness: 0.25,
+  });
+  const mullionMat = new THREE.MeshStandardMaterial({ color: '#ede7dc', roughness: 0.5, metalness: 0.3 });
+  const domeGlassMat = new THREE.MeshStandardMaterial({
+    color: '#6b8eb5',
+    emissive: '#29405e',
+    emissiveIntensity: 0.45,
+    roughness: 0.15,
+    metalness: 0.65,
+    transparent: true,
+    opacity: 0.86,
+  });
+  const grassLawnMat = new THREE.MeshStandardMaterial({ color: '#395e34', roughness: 0.92 });
+
+  // 1. CAMPUS COURTYARD GROUND & RED-BRICK CEREMONIAL WALKWAY
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(110, 110), grassLawnMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  campusGroup.add(ground);
+
+  const plaza = new THREE.Mesh(new THREE.BoxGeometry(46, 0.08, 42), plazaMat);
+  plaza.position.set(0, 0.04, 2);
+  plaza.receiveShadow = true;
+  campusGroup.add(plaza);
+
+  // Ceremonial brick red-carpet walkway leading from arrival up to the rotunda doors
+  const walkway = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.10, 30), walkwayMat);
+  walkway.position.set(0, 0.05, 5.5);
+  walkway.receiveShadow = true;
+  campusGroup.add(walkway);
+
+  // 2. ICONIC BRICKELL MEDICAL SCIENCES CIRCULAR COLONNADE ROTUNDA (z = -13)
+  const rotundaCenterZ = -14.0;
+  const rotundaGroup = new THREE.Group();
+  rotundaGroup.position.set(0, 0.08, rotundaCenterZ);
+  campusGroup.add(rotundaGroup);
+
+  // Raised circular entrance steps
+  const step1 = new THREE.Mesh(new THREE.CylinderGeometry(9.6, 10.0, 0.24, 36), limestoneTrimMat);
+  step1.position.y = 0.12;
+  step1.receiveShadow = true;
+  rotundaGroup.add(step1);
+
+  // Curved Two-Story Glowing Glass Atrium Cylinder behind the columns
+  const glassAtrium = new THREE.Mesh(
+    new THREE.CylinderGeometry(6.9, 6.9, 6.8, 32, 1, false, -Math.PI * 0.55, Math.PI * 1.1),
+    warmGlassMat
+  );
+  glassAtrium.position.y = 3.6;
+  rotundaGroup.add(glassAtrium);
+
+  // Vertical glass mullions & horizontal floor divider band
+  for (let i = -5; i <= 5; i++) {
+    const a = (i / 5) * 1.45;
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.14, 6.9, 0.2), mullionMat);
+    m.position.set(Math.sin(a) * 6.96, 3.6, Math.cos(a) * 6.96);
+    m.rotation.y = a;
+    rotundaGroup.add(m);
+  }
+  const midBand = new THREE.Mesh(
+    new THREE.CylinderGeometry(7.05, 7.05, 0.35, 32, 1, true, -Math.PI * 0.55, Math.PI * 1.1),
+    mullionMat
+  );
+  midBand.position.y = 3.55;
+  rotundaGroup.add(midBand);
+
+  // Grand Glowing Entrance Double Doors at the front of the atrium
+  const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(3.6, 3.3, 0.35), mullionMat);
+  doorFrame.position.set(0, 1.85, 7.02);
+  rotundaGroup.add(doorFrame);
+
+  const doorGlass = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.2, 3.0),
+    new THREE.MeshStandardMaterial({
+      color: '#fff4d4',
+      emissive: '#ffcf73',
+      emissiveIntensity: 1.9,
+      roughness: 0.1,
+    })
+  );
+  doorGlass.position.set(0, 1.8, 7.22);
+  rotundaGroup.add(doorGlass);
+
+  // Warm welcoming light spilling out of the lobby doors
+  const lobbyLight = new THREE.PointLight('#ffcc75', 14, 24, 1.4);
+  lobbyLight.position.set(0, 3.6, 8.8);
+  rotundaGroup.add(lobbyLight);
+
+  // 8 Grand Classical Cream-Limestone Columns curving around the rotunda (exact match to photo!)
+  const colRadius = 8.7;
+  const colAngles = [-1.32, -0.96, -0.60, -0.24, 0.24, 0.60, 0.96, 1.32];
+  colAngles.forEach((a) => {
+    const cx = Math.sin(a) * colRadius;
+    const cz = Math.cos(a) * colRadius;
+
+    const plinth = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.62, 0.4, 14), limestoneTrimMat);
+    plinth.position.set(cx, 0.42, cz);
+    rotundaGroup.add(plinth);
+
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 6.7, 16), limestoneMat);
+    shaft.position.set(cx, 3.9, cz);
+    shaft.castShadow = true;
+    shaft.receiveShadow = true;
+    rotundaGroup.add(shaft);
+
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.44, 0.36, 14), limestoneTrimMat);
+    cap.position.set(cx, 7.35, cz);
+    rotundaGroup.add(cap);
+
+    obstacles.push({ x: cx, z: rotundaCenterZ + cz, radius: 0.7 });
+  });
+
+  // Curved Classical Limestone Entablature / Cornice with engraved "EDWARD E. BRICKELL MEDICAL SCIENCES"
+  const friezeTex = createBrickellFriezeTexture();
+  const entablature = new THREE.Mesh(
+    new THREE.CylinderGeometry(9.35, 9.25, 1.35, 40, 1, false, -Math.PI * 0.52, Math.PI * 1.04),
+    new THREE.MeshStandardMaterial({ map: friezeTex, roughness: 0.72 })
+  );
+  entablature.position.y = 8.15;
+  entablature.castShadow = true;
+  rotundaGroup.add(entablature);
+
+  // Upper cornice ledge
+  const corniceTop = new THREE.Mesh(
+    new THREE.CylinderGeometry(9.65, 9.45, 0.35, 40),
+    limestoneTrimMat
+  );
+  corniceTop.position.y = 8.95;
+  rotundaGroup.add(corniceTop);
+
+  // Iconic Ribbed Glass Rotunda Dome on top!
+  const dome = new THREE.Mesh(
+    new THREE.SphereGeometry(6.8, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.46),
+    domeGlassMat
+  );
+  dome.position.y = 9.05;
+  rotundaGroup.add(dome);
+
+  // Structural ribs on the glass dome
+  for (let i = 0; i < 12; i++) {
+    const rib = new THREE.Mesh(
+      new THREE.TorusGeometry(6.84, 0.08, 6, 20, Math.PI * 0.46),
+      mullionMat
+    );
+    rib.position.y = 9.05;
+    rib.rotation.y = (i / 12) * Math.PI * 2;
+    rotundaGroup.add(rib);
+  }
+
+  // === GRAND CEREMONIAL BANNER ON TOP OF THE ARCHY BUILDING: "MD CLASS OF 2031" ===
+  const bannerTex = createClass2031BannerTexture();
+  const bannerFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(9.6, 2.45, 0.24),
+    new THREE.MeshStandardMaterial({ color: '#cfa34e', metalness: 0.65, roughness: 0.35 })
+  );
+  bannerFrame.position.set(0, 6.2, 9.55);
+  bannerFrame.castShadow = true;
+  rotundaGroup.add(bannerFrame);
+
+  const bannerFace = new THREE.Mesh(
+    new THREE.PlaneGeometry(9.3, 2.2),
+    new THREE.MeshStandardMaterial({
+      map: bannerTex,
+      roughness: 0.45,
+      emissive: '#334d7a',
+      emissiveIntensity: 0.42,
+    })
+  );
+  bannerFace.position.set(0, 6.2, 9.69);
+  rotundaGroup.add(bannerFace);
+
+  // 3. CLASSICAL LIMESTONE LEFT & RIGHT ACADEMIC WINGS (matching the attached photo!)
+  function buildAcademicWing(xPos, width, depth, height, rotY = 0) {
+    const wing = new THREE.Group();
+    wing.position.set(xPos, 0.08, rotundaCenterZ - 1.5);
+    wing.rotation.y = rotY;
+
+    const body = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), limestoneMat);
+    body.position.y = height * 0.5;
+    body.castShadow = true;
+    body.receiveShadow = true;
+    wing.add(body);
+
+    const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(width + 0.5, 0.55, depth + 0.5), limestoneTrimMat);
+    roofTrim.position.y = height + 0.2;
+    wing.add(roofTrim);
+
+    // Rows of warmly lit evening windows
+    const cols = Math.floor(width / 2.6);
+    for (let floor = 0; floor < 3; floor++) {
+      for (let c = 0; c < cols; c++) {
+        const wx = -width * 0.5 + 1.4 + c * 2.55;
+        const wy = 2.0 + floor * 2.8;
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 1.85), warmGlassMat);
+        win.position.set(wx, wy, depth * 0.5 + 0.04);
+        wing.add(win);
+      }
+    }
+
+    campusGroup.add(wing);
+  }
+
+  buildAcademicWing(-16.5, 18, 10, 10.2, 0.14);
+  buildAcademicWing(16.5, 14, 10, 9.4, -0.14);
+
+  // Back brick library block rising slightly behind the rotunda (just like the photo!)
+  const backTower = new THREE.Mesh(new THREE.BoxGeometry(22, 13.5, 9), darkBrickMat);
+  backTower.position.set(-4, 6.8, rotundaCenterZ - 9.5);
+  campusGroup.add(backTower);
+
+  // 4. CIRCULAR COURTYARD FOUNTAIN OUT FRONT (just like the photo!)
+  const fountainPos = new THREE.Vector3(6.2, 0.08, -2.5);
+  const fountainGroup = new THREE.Group();
+  fountainGroup.position.copy(fountainPos);
+
+  const basinRim = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.28, 10, 28), limestoneTrimMat);
+  basinRim.rotation.x = Math.PI / 2;
+  basinRim.position.y = 0.35;
+  basinRim.castShadow = true;
+  fountainGroup.add(basinRim);
+
+  const basinWater = new THREE.Mesh(
+    new THREE.CircleGeometry(2.25, 28),
+    new THREE.MeshStandardMaterial({
+      color: '#46b5c4',
+      emissive: '#1e6e7d',
+      emissiveIntensity: 0.45,
+      roughness: 0.12,
+      metalness: 0.4,
+    })
+  );
+  basinWater.rotation.x = -Math.PI / 2;
+  basinWater.position.y = 0.38;
+  fountainGroup.add(basinWater);
+
+  // Animated sparkling water jet column
+  const jetMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.38, 1.8, 12, 1, true),
+    new THREE.MeshBasicMaterial({
+      color: '#d8f6ff',
+      transparent: true,
+      opacity: 0.68,
+      blending: THREE.AdditiveBlending,
+    })
+  );
+  jetMesh.position.y = 1.25;
+  fountainGroup.add(jetMesh);
+
+  campusGroup.add(fountainGroup);
+  obstacles.push({ x: fountainPos.x, z: fountainPos.z, radius: 2.7 });
+
+  // 5. ORNAMENTAL CAMPUS TREES & WARM TWILIGHT STREET LAMPS
+  const lampPoleMat = new THREE.MeshStandardMaterial({ color: '#2b323b', metalness: 0.7, roughness: 0.35 });
+  const lampBulbMat = new THREE.MeshStandardMaterial({
+    color: '#fff1cc',
+    emissive: '#ffbd59',
+    emissiveIntensity: 2.5,
+  });
+
+  [[-5.2, 8], [5.2, 8], [-5.2, 0.5], [5.2, 14.5], [-5.2, 14.5]].forEach(([lx, lz]) => {
+    const lamp = new THREE.Group();
+    lamp.position.set(lx, 0.08, lz);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 4.4, 8), lampPoleMat);
+    pole.position.y = 2.2;
+    pole.castShadow = true;
+    lamp.add(pole);
+
+    const globe = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 10), lampBulbMat);
+    globe.position.y = 4.55;
+    lamp.add(globe);
+
+    const pl = new THREE.PointLight('#ffca78', 5.5, 16, 1.6);
+    pl.position.y = 4.5;
+    lamp.add(pl);
+
+    campusGroup.add(lamp);
+    obstacles.push({ x: lx, z: lz, radius: 0.45 });
+  });
+
+  // Ornamental manicured courtyard trees
+  const treeTrunkMat = new THREE.MeshStandardMaterial({ color: '#5c4636', roughness: 0.9 });
+  const treeLeafMat = new THREE.MeshStandardMaterial({ color: '#3b6b38', roughness: 0.82, flatShading: true });
+  [[-10.5, 2], [-12.5, 9], [11.5, 5], [12.5, 12], [-9.0, -4]].forEach(([tx, tz]) => {
+    const t = new THREE.Group();
+    t.position.set(tx, 0.08, tz);
+    const tr = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, 2.2, 7), treeTrunkMat);
+    tr.position.y = 1.1;
+    tr.castShadow = true;
+    t.add(tr);
+    const crown = new THREE.Mesh(new THREE.DodecahedronGeometry(1.65, 1), treeLeafMat);
+    crown.position.y = 3.0;
+    crown.castShadow = true;
+    t.add(crown);
+    campusGroup.add(t);
+    obstacles.push({ x: tx, z: tz, radius: 0.6 });
+  });
+
+  // Entrance trigger marker (soft golden glowing carpet circle right in front of the glass doors)
+  const entrancePos = new THREE.Vector3(0, 0.1, rotundaCenterZ + 7.6);
+  const entranceRing = new THREE.Mesh(
+    new THREE.RingGeometry(1.35, 1.65, 32),
+    new THREE.MeshBasicMaterial({
+      color: '#ffd97d',
+      transparent: true,
+      opacity: 0.65,
+      side: THREE.DoubleSide,
+    })
+  );
+  entranceRing.rotation.x = -Math.PI / 2;
+  entranceRing.position.set(entrancePos.x, 0.38, entrancePos.z);
+  campusGroup.add(entranceRing);
+
+  // 6. FELLOW MD CLASS OF 2031 STUDENTS & GUESTS HANGING AROUND & WALKING TOWARD THE BUILDING
+  const crowdNPCs = [];
+  function createCampusNPC({ skinColor, hairColor, isMedStudent, outfitColor, pantsColor }) {
+    const g = new THREE.Group();
+    const sMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.65 });
+    const hMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.9 });
+    const topMat = new THREE.MeshStandardMaterial({
+      color: isMedStudent ? '#f7f8fc' : outfitColor,
+      roughness: 0.55,
+    });
+    const botMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.65 });
+    const shoeMat = new THREE.MeshStandardMaterial({ color: '#1b1715', roughness: 0.4 });
+
+    const leftLeg = new THREE.Group();
+    leftLeg.position.set(-0.13, 0.82, 0);
+    const lMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.56, 5, 8), botMat);
+    lMesh.position.y = -0.36;
+    lMesh.castShadow = true;
+    leftLeg.add(lMesh);
+    const lShoe = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.11, 0.22), shoeMat);
+    lShoe.position.set(0, -0.74, 0.03);
+    leftLeg.add(lShoe);
+
+    const rightLeg = new THREE.Group();
+    rightLeg.position.set(0.13, 0.82, 0);
+    const rMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085, 0.56, 5, 8), botMat);
+    rMesh.position.y = -0.36;
+    rMesh.castShadow = true;
+    rightLeg.add(rMesh);
+    const rShoe = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.11, 0.22), shoeMat);
+    rShoe.position.set(0, -0.74, 0.03);
+    rightLeg.add(rShoe);
+    g.add(leftLeg, rightLeg);
+
+    // Torso (short white coat for med students, dress/suit for guests!)
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.20, 0.62, 12), topMat);
+    torso.scale.set(1.1, 1, 0.78);
+    torso.position.y = 1.15;
+    torso.castShadow = true;
+    g.add(torso);
+
+    const leftArm = new THREE.Group();
+    leftArm.position.set(-0.29, 1.38, 0);
+    const la = new THREE.Mesh(new THREE.CapsuleGeometry(0.068, 0.42, 5, 8), topMat);
+    la.position.y = -0.24;
+    leftArm.add(la);
+    const rightArm = new THREE.Group();
+    rightArm.position.set(0.29, 1.38, 0);
+    const ra = new THREE.Mesh(new THREE.CapsuleGeometry(0.068, 0.42, 5, 8), topMat);
+    ra.position.y = -0.24;
+    rightArm.add(ra);
+    g.add(leftArm, rightArm);
+
+    const head = new THREE.Group();
+    head.position.y = 1.62;
+    const skull = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 10), sMat);
+    skull.castShadow = true;
+    head.add(skull);
+    const hair = new THREE.Mesh(
+      new THREE.SphereGeometry(0.19, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.58),
+      hMat
+    );
+    hair.position.y = 0.03;
+    head.add(hair);
+    g.add(head);
+
+    if (isMedStudent) {
+      // Subtle dark stethoscope around fellow med students' necks
+      const steth = new THREE.Mesh(
+        new THREE.TorusGeometry(0.12, 0.014, 6, 14, Math.PI * 1.25),
+        new THREE.MeshStandardMaterial({ color: '#1b1d24', roughness: 0.45 })
+      );
+      steth.rotation.x = Math.PI / 2 + 0.25;
+      steth.rotation.z = -Math.PI * 0.62;
+      steth.position.set(0, 1.44, 0.03);
+      g.add(steth);
+    }
+
+    campusGroup.add(g);
+    return { g, leftLeg, rightLeg, leftArm, rightArm, head };
+  }
+
+  // Hanging out & chatting in small celebratory groups near the fountain & colonnade
+  const idleSpecs = [
+    { x: 3.6, z: -1.8, rot: -1.1, skinColor: '#d9a47e', hairColor: '#2c1e16', isMedStudent: true, outfitColor: '#fff', pantsColor: '#222b3d' },
+    { x: 4.5, z: -0.9, rot: 2.1, skinColor: '#7d4c31', hairColor: '#171311', isMedStudent: false, outfitColor: '#7a2e46', pantsColor: '#292226' },
+    { x: -4.2, z: -2.2, rot: 0.9, skinColor: '#e6be9c', hairColor: '#5c3c24', isMedStudent: true, outfitColor: '#fff', pantsColor: '#1e2738' },
+    { x: -3.2, z: -1.5, rot: -2.2, skinColor: '#b57b52', hairColor: '#1b1614', isMedStudent: true, outfitColor: '#fff', pantsColor: '#232936' },
+    { x: -6.8, z: 5.4, rot: 0.6, skinColor: '#5c3724', hairColor: '#141110', isMedStudent: false, outfitColor: '#27436e', pantsColor: '#1c2536' },
+    { x: -5.8, z: 6.1, rot: -2.5, skinColor: '#c98f68', hairColor: '#2b1c14', isMedStudent: true, outfitColor: '#fff', pantsColor: '#1f2633' },
+  ];
+  idleSpecs.forEach((spec, i) => {
+    const npc = createCampusNPC(spec);
+    npc.g.position.set(spec.x, 0.1, spec.z);
+    npc.g.rotation.y = spec.rot;
+    crowdNPCs.push({ ...npc, mode: 'idle', phase: i * 1.3 });
+    obstacles.push({ x: spec.x, z: spec.z, radius: 0.45 });
+  });
+
+  // Walking along the courtyard toward the "MD CLASS OF 2031" building entrance!
+  const walkerSpecs = [
+    { startX: -2.3, startZ: 12.0, endX: -1.4, endZ: -5.5, speed: 1.45, skinColor: '#c78c62', hairColor: '#1c1512', isMedStudent: true, outfitColor: '#fff', pantsColor: '#1e2738' },
+    { startX: 2.4, startZ: 9.5, endX: 1.5, endZ: -5.8, speed: 1.35, skinColor: '#8c5638', hairColor: '#151210', isMedStudent: false, outfitColor: '#2a3a54', pantsColor: '#1b2230' },
+    { startX: -8.5, startZ: 11.5, endX: -1.9, endZ: -4.8, speed: 1.5, skinColor: '#e3b896', hairColor: '#4a311e', isMedStudent: true, outfitColor: '#fff', pantsColor: '#222b3d' },
+    { startX: 8.8, startZ: 7.5, endX: 1.8, endZ: -5.2, speed: 1.3, skinColor: '#6d4129', hairColor: '#141110', isMedStudent: true, outfitColor: '#fff', pantsColor: '#1f283a' },
+    { startX: 3.1, startZ: 16.5, endX: 1.2, endZ: -5.0, speed: 1.4, skinColor: '#d49d76', hairColor: '#362318', isMedStudent: false, outfitColor: '#3d5a47', pantsColor: '#252c28' },
+  ];
+  walkerSpecs.forEach((spec, i) => {
+    const npc = createCampusNPC(spec);
+    const t0 = (i * 0.21) % 1;
+    npc.g.position.set(
+      THREE.MathUtils.lerp(spec.startX, spec.endX, t0),
+      0.1,
+      THREE.MathUtils.lerp(spec.startZ, spec.endZ, t0)
+    );
+    crowdNPCs.push({
+      ...npc,
+      mode: 'walk',
+      start: new THREE.Vector2(spec.startX, spec.startZ),
+      end: new THREE.Vector2(spec.endX, spec.endZ),
+      t: t0,
+      speed: spec.speed,
+      phase: i * 1.7,
+    });
+  });
+
+  // 7. MEDIEVAL "SHENANDOAH" RETURN PORTAL AT SOUTH END OF COURTYARD (BACK TO THE FOREST!)
+  const returnPortalPos = new THREE.Vector3(0, 0.1, 20.5);
+  const shGroup = new THREE.Group();
+  shGroup.position.copy(returnPortalPos);
+  shGroup.rotation.y = Math.PI; // Faces north toward the EVMS courtyard!
+
+  const shStoneMat = new THREE.MeshStandardMaterial({ color: '#6b6d66', roughness: 0.92, flatShading: true });
+  const shStoneDark = new THREE.MeshStandardMaterial({ color: '#4b4e48', roughness: 0.94, flatShading: true });
+  const shGoldMat = new THREE.MeshStandardMaterial({ color: '#cfa34e', metalness: 0.65, roughness: 0.35 });
+
+  const shDais = new THREE.Mesh(new THREE.BoxGeometry(6.2, 0.24, 3.0), shStoneDark);
+  shDais.position.y = 0.12;
+  shDais.receiveShadow = true;
+  shGroup.add(shDais);
+
+  [-2.25, 2.25].forEach((px) => {
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.12, 0.65, 1.12), shStoneDark);
+    base.position.set(px, 0.55, 0);
+    base.castShadow = true;
+    shGroup.add(base);
+
+    const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.84, 3.1, 0.84), shStoneMat);
+    pillar.position.set(px, 2.4, 0);
+    pillar.castShadow = true;
+    shGroup.add(pillar);
+
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(1.12, 0.38, 1.12), shStoneDark);
+    cap.position.set(px, 4.05, 0);
+    shGroup.add(cap);
+
+    obstacles.push({ x: returnPortalPos.x + px, z: returnPortalPos.z, radius: 0.72 });
+  });
+
+  for (let i = 0; i < 11; i++) {
+    const t = i / 10;
+    const angle = Math.PI * (1 - t);
+    const block = new THREE.Mesh(
+      new THREE.BoxGeometry(0.76, 0.56, 1.02),
+      i === 5 ? shStoneDark : shStoneMat
+    );
+    block.position.set(Math.cos(angle) * 2.25, 3.72 + Math.sin(angle) * 1.35, 0);
+    block.rotation.z = angle - Math.PI / 2;
+    block.castShadow = true;
+    shGroup.add(block);
+  }
+
+  // Carved Medieval Stone Plaque reading "SHENANDOAH"
+  const shPlaqueTex = createShenandoahPlaqueTexture();
+  const shPlaqueBack = new THREE.Mesh(new THREE.BoxGeometry(4.75, 1.15, 0.42), shStoneDark);
+  shPlaqueBack.position.set(0, 5.15, 0.22);
+  shPlaqueBack.castShadow = true;
+  shGroup.add(shPlaqueBack);
+
+  const shPlaqueFace = new THREE.Mesh(
+    new THREE.PlaneGeometry(4.5, 1.02),
+    new THREE.MeshStandardMaterial({
+      map: shPlaqueTex,
+      roughness: 0.6,
+      emissive: '#594216',
+      emissiveIntensity: 0.45,
+    })
+  );
+  shPlaqueFace.position.set(0, 5.15, 0.44);
+  shGroup.add(shPlaqueFace);
+
+  const shCrest = new THREE.Mesh(new THREE.OctahedronGeometry(0.28, 0), shGoldMat);
+  shCrest.scale.set(1.2, 1.5, 0.5);
+  shCrest.position.set(0, 5.92, 0.22);
+  shGroup.add(shCrest);
+
+  // Swirling Forest-Emerald & Gold Portal Vortex!
+  const shPortalUniforms = { uTime: { value: 0 } };
+  const shPortalMat = new THREE.ShaderMaterial({
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: shPortalUniforms,
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      varying vec2 vUv;
+      void main() {
+        vec2 p = vUv * 2.0 - 1.0;
+        p.y *= 1.15;
+        float r = length(p);
+        float a = atan(p.y, p.x);
+
+        float swirl = sin(r * 10.0 - uTime * 3.5 + a * 3.0) * 0.5 + 0.5;
+        float ripple = sin(r * 16.0 - uTime * 4.8 - a * 2.0) * 0.5 + 0.5;
+
+        vec3 coreGold = vec3(1.0, 0.92, 0.58);
+        vec3 forestGreen = vec3(0.24, 0.82, 0.46);
+        vec3 deepPine = vec3(0.12, 0.52, 0.36);
+
+        vec3 col = mix(coreGold, forestGreen, smoothstep(0.12, 0.65, r));
+        col = mix(col, deepPine, smoothstep(0.58, 0.98, r));
+        col += vec3(0.32, 0.35, 0.14) * swirl * ripple;
+
+        float alpha = smoothstep(1.0, 0.62, r) * (0.68 + 0.28 * swirl);
+        gl_FragColor = vec4(col, alpha);
+      }
+    `,
+  });
+  const shVortex = new THREE.Mesh(new THREE.PlaneGeometry(3.65, 4.1), shPortalMat);
+  shVortex.position.set(0, 2.4, 0.02);
+  shGroup.add(shVortex);
+
+  const shLight = new THREE.PointLight('#9cf7b4', 4.8, 14, 1.5);
+  shLight.position.set(0, 2.8, 1.2);
+  shGroup.add(shLight);
+
+  campusGroup.add(shGroup);
+
+  return {
+    campusGroup,
+    obstacles,
+    entrancePos,
+    returnPortalPos,
+    spawnPos: new THREE.Vector3(0, 0.1, 15.5),
+    getHeight() {
+      return 0.1;
+    },
+    update(elapsed, dt = 0.016) {
+      jetMesh.scale.y = 0.92 + Math.sin(elapsed * 7.5) * 0.12;
+      jetMesh.rotation.y = elapsed * 2.4;
+      entranceRing.material.opacity = 0.45 + Math.sin(elapsed * 3.0) * 0.25;
+      const s = 0.96 + Math.sin(elapsed * 3.0) * 0.05;
+      entranceRing.scale.set(s, s, 1);
+      shPortalUniforms.uTime.value = elapsed;
+      shLight.intensity = 4.6 + Math.sin(elapsed * 3.5) * 0.9;
+
+      for (const npc of crowdNPCs) {
+        if (npc.mode === 'idle') {
+          npc.head.rotation.y = Math.sin(elapsed * 1.4 + npc.phase) * 0.22;
+          npc.g.position.y = 0.1 + Math.sin(elapsed * 2.1 + npc.phase) * 0.012;
+        } else {
+          const totalDist = npc.start.distanceTo(npc.end) || 1;
+          npc.t += (npc.speed * dt) / totalDist;
+          if (npc.t >= 1) npc.t = 0;
+          const nx = THREE.MathUtils.lerp(npc.start.x, npc.end.x, npc.t);
+          const nz = THREE.MathUtils.lerp(npc.start.y, npc.end.y, npc.t);
+          npc.g.position.set(nx, 0.1, nz);
+          npc.g.rotation.y = Math.atan2(npc.end.x - npc.start.x, npc.end.y - npc.start.y);
+
+          const sw = Math.sin(elapsed * 6.5 + npc.phase) * 0.42;
+          npc.leftLeg.rotation.x = sw;
+          npc.rightLeg.rotation.x = -sw;
+          npc.leftArm.rotation.x = -sw * 0.65;
+          npc.rightArm.rotation.x = sw * 0.65;
+        }
+      }
+    },
+  };
+}
+
+
+// === characters.js ===
+
+
+
+function buildStylizedCharacter(config) {
+  const root = new THREE.Group();
+  const bodyPivot = new THREE.Group();
+  root.add(bodyPivot);
+
+  const skinMat = new THREE.MeshStandardMaterial({ color: config.skinColor, roughness: 0.62 });
+  const hairMat = new THREE.MeshStandardMaterial({ color: config.hairColor, roughness: 0.92 });
+
+  // Switchable materials for wilderness vs ceremony outfits
+  const wildPantsMat = new THREE.MeshStandardMaterial({ color: config.wildPantsColor, roughness: 0.86 });
+  const wildBootMat = new THREE.MeshStandardMaterial({ color: config.wildBootColor, roughness: 0.72 });
+  const wildShirtMat = new THREE.MeshStandardMaterial({ map: config.wildShirtTexture, roughness: 0.8 });
+
+  const ceremonyPantsMat = new THREE.MeshStandardMaterial({ color: '#1b2436', roughness: 0.55 });
+  const ceremonyShoeMat = new THREE.MeshStandardMaterial({ color: '#161312', roughness: 0.3, metalness: 0.15 });
+  const ceremonyTorsoMat = new THREE.MeshStandardMaterial({
+    map: config.isWhiteCoat ? createWhiteCoatTexture() : createSuitTexture(),
+    roughness: 0.52,
+  });
+  const ceremonySleeveMat = new THREE.MeshStandardMaterial({
+    color: config.isWhiteCoat ? '#f7f8fb' : '#1e283b',
+    roughness: 0.5,
+  });
+
+  const wildMeshes = [];
+  const ceremonyMeshes = [];
+
+  // --- LEGS (Hip pivots) ---
+  function makeLeg(xOffset) {
+    const hip = new THREE.Group();
+    hip.position.set(xOffset, 0.86, 0);
+
+    const thigh = new THREE.Mesh(new THREE.CapsuleGeometry(0.105, 0.32, 6, 10), wildPantsMat);
+    thigh.position.y = -0.22;
+    thigh.castShadow = true;
+    hip.add(thigh);
+
+    const shin = new THREE.Mesh(new THREE.CapsuleGeometry(0.088, 0.30, 6, 10), wildPantsMat);
+    shin.position.y = -0.56;
+    shin.castShadow = true;
+    hip.add(shin);
+
+    const boot = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.27), wildBootMat);
+    boot.position.set(0, -0.78, 0.045);
+    boot.castShadow = true;
+    hip.add(boot);
+
+    // Lara-Croft style thigh utility strap (wilderness only)
+    const strap = new THREE.Mesh(
+      new THREE.TorusGeometry(0.112, 0.016, 6, 14),
+      new THREE.MeshStandardMaterial({ color: '#3b281c', roughness: 0.7 })
+    );
+    strap.rotation.x = Math.PI / 2;
+    strap.position.y = -0.24;
+    hip.add(strap);
+    wildMeshes.push(strap);
+
+    return { hip, thigh, shin, boot };
+  }
+
+  const leftLegData = makeLeg(-0.145);
+  const rightLegData = makeLeg(0.145);
+  const leftLeg = leftLegData.hip;
+  const rightLeg = rightLegData.hip;
+  bodyPivot.add(leftLeg, rightLeg);
+
+  // --- TORSO ---
+  const torsoGroup = new THREE.Group();
+  torsoGroup.position.set(0, 0.88, 0);
+  bodyPivot.add(torsoGroup);
+
+  const pelvis = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.20, 0.16, 12), wildPantsMat);
+  pelvis.position.y = 0.04;
+  pelvis.scale.set(1.12, 1, 0.78);
+  torsoGroup.add(pelvis);
+
+  // Main chest mesh (material swaps on transformation!)
+  const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.265, 0.215, 0.56, 16), wildShirtMat);
+  chest.position.y = 0.36;
+  chest.rotation.y = Math.PI;
+  chest.scale.set(1.15, 1, 0.78);
+  chest.castShadow = true;
+  chest.receiveShadow = true;
+  torsoGroup.add(chest);
+
+  // Neck
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.082, 0.095, 0.14, 10), skinMat);
+  neck.position.y = 0.68;
+  neck.castShadow = true;
+  torsoGroup.add(neck);
+
+  // === WILDERNESS / LARA CROFT CAMPING GEAR GROUP ===
+  const wildGear = new THREE.Group();
+  torsoGroup.add(wildGear);
+  wildMeshes.push(wildGear);
+
+  const leatherMat = new THREE.MeshStandardMaterial({ color: '#4c3220', roughness: 0.72 });
+  const brassMat = new THREE.MeshStandardMaterial({ color: '#d4a84f', metalness: 0.8, roughness: 0.28 });
+
+  // Utility Belt + Buckle + Pouches + Canteen
+  const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.075, 14), leatherMat);
+  belt.scale.set(1.16, 1, 0.82);
+  belt.position.y = 0.09;
+  wildGear.add(belt);
+
+  const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.065, 0.04), brassMat);
+  buckle.position.set(0, 0.09, 0.195);
+  wildGear.add(buckle);
+
+  [-0.22, 0.22].forEach((px) => {
+    const pouch = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.11, 0.07), leatherMat);
+    pouch.position.set(px, 0.08, 0.08);
+    wildGear.add(pouch);
+  });
+
+  // Metallic camping canteen on hip
+  const canteen = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.055, 0.055, 0.13, 10),
+    new THREE.MeshStandardMaterial({ color: '#7d8a78', metalness: 0.55, roughness: 0.4 })
+  );
+  canteen.position.set(-0.26, 0.05, -0.05);
+  wildGear.add(canteen);
+
+  // Cross-chest expedition harness straps (Lara Croft adventure vibe!)
+  [-1, 1].forEach((s) => {
+    const strap = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.58, 0.42), leatherMat);
+    strap.position.set(s * 0.14, 0.36, 0);
+    strap.rotation.z = s * 0.1;
+    wildGear.add(strap);
+  });
+
+  // Rugged Expedition Camping Backpack + Rolled Sleeping Bag on top!
+  const packGroup = new THREE.Group();
+  packGroup.position.set(0, 0.38, -0.25);
+  const packBody = new THREE.Mesh(
+    new THREE.BoxGeometry(0.36, 0.44, 0.18),
+    new THREE.MeshStandardMaterial({ color: config.packColor, roughness: 0.85 })
+  );
+  packBody.castShadow = true;
+  packGroup.add(packBody);
+
+  const packFlap = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.12, 0.2), leatherMat);
+  packFlap.position.y = 0.17;
+  packGroup.add(packFlap);
+
+  // Rolled camping bedroll strapped across top of pack
+  const bedroll = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.085, 0.085, 0.46, 12),
+    new THREE.MeshStandardMaterial({ color: config.bedrollColor, roughness: 0.9 })
+  );
+  bedroll.rotation.z = Math.PI / 2;
+  bedroll.position.set(0, 0.28, -0.02);
+  bedroll.castShadow = true;
+  packGroup.add(bedroll);
+  wildGear.add(packGroup);
+
+  // Damonie's silver chain necklace (wilderness)
+  if (config.hasChain) {
+    const chainMat = new THREE.MeshStandardMaterial({ color: '#e3e8ee', metalness: 0.9, roughness: 0.2 });
+    const chain = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.011, 6, 18), chainMat);
+    chain.rotation.x = Math.PI / 2 + 0.32;
+    chain.position.set(0, 0.61, 0.045);
+    wildGear.add(chain);
+  }
+
+  // === CEREMONY OUTFIT EXTRAS (White Coat Tail + Stethoscope OR Suit Jacket Collar) ===
+  const ceremonyGear = new THREE.Group();
+  ceremonyGear.visible = false;
+  torsoGroup.add(ceremonyGear);
+  ceremonyMeshes.push(ceremonyGear);
+
+  // Formal Collar
+  const formalCollar = new THREE.Mesh(
+    new THREE.TorusGeometry(0.115, 0.036, 8, 16),
+    new THREE.MeshStandardMaterial({ color: config.isWhiteCoat ? '#f7f8fc' : '#1e283b', roughness: 0.5 })
+  );
+  formalCollar.rotation.x = Math.PI / 2 + 0.16;
+  formalCollar.position.set(0, 0.635, 0.01);
+  ceremonyGear.add(formalCollar);
+
+  if (config.isWhiteCoat) {
+    // Crisp SHORT med-student White Coat hem (ends at the hips, showing tailored slacks below!)
+    const coatTail = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.242, 0.258, 0.15, 16, 1, true, -Math.PI * 0.85, Math.PI * 1.7),
+      new THREE.MeshStandardMaterial({ color: '#f7f8fc', roughness: 0.5, side: THREE.DoubleSide })
+    );
+    coatTail.scale.set(1.15, 1, 0.82);
+    coatTail.position.set(0, 0.05, -0.01);
+    coatTail.rotation.y = Math.PI;
+    coatTail.castShadow = true;
+    ceremonyGear.add(coatTail);
+
+    // === DETAILED 3D STETHOSCOPE AROUND DAMONIE'S NECK! ===
+    const stethGroup = new THREE.Group();
+    const tubeMat = new THREE.MeshStandardMaterial({ color: '#1b1d24', roughness: 0.45 });
+    const chromeMat = new THREE.MeshStandardMaterial({ color: '#e3e8f0', metalness: 0.92, roughness: 0.15 });
+
+    // Neck collar loop of stethoscope
+    const neckLoop = new THREE.Mesh(new THREE.TorusGeometry(0.135, 0.017, 8, 22, Math.PI * 1.35), tubeMat);
+    neckLoop.rotation.x = Math.PI / 2 + 0.25;
+    neckLoop.rotation.z = -Math.PI * 0.68;
+    neckLoop.position.set(0, 0.62, 0.02);
+    stethGroup.add(neckLoop);
+
+    // Left draping binaural tube + silver earpieces
+    const leftDrop = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.26, 8), tubeMat);
+    leftDrop.position.set(-0.125, 0.47, 0.185);
+    leftDrop.rotation.x = -0.15;
+    stethGroup.add(leftDrop);
+
+    const earFork = new THREE.Mesh(new THREE.TorusGeometry(0.042, 0.009, 6, 12, Math.PI), chromeMat);
+    earFork.position.set(-0.125, 0.34, 0.205);
+    stethGroup.add(earFork);
+
+    // Right draping tube + iconic silver stethoscope chestpiece (diaphragm)!
+    const rightDrop = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.30, 8), tubeMat);
+    rightDrop.position.set(0.125, 0.45, 0.19);
+    rightDrop.rotation.x = -0.14;
+    stethGroup.add(rightDrop);
+
+    const diaphragm = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.022, 14), chromeMat);
+    diaphragm.rotation.x = Math.PI / 2;
+    diaphragm.position.set(0.125, 0.28, 0.215);
+    stethGroup.add(diaphragm);
+
+    ceremonyGear.add(stethGroup);
+  } else {
+    // Brandon's tailored suit jacket lower hem
+    const suitHem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.24, 0.255, 0.22, 16),
+      new THREE.MeshStandardMaterial({ color: '#1e283b', roughness: 0.55 })
+    );
+    suitHem.scale.set(1.15, 1, 0.8);
+    suitHem.position.y = 0.02;
+    ceremonyGear.add(suitHem);
+  }
+
+  // --- ARMS (Shoulder pivots) ---
+  function makeArm(xOffset, isLeft) {
+    const shoulder = new THREE.Group();
+    shoulder.position.set(xOffset, 0.57, 0);
+
+    // Wilderness short sleeve + exposed skin arm (with Damonie's tattoo!)
+    const wildSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.088, 0.21, 10), wildShirtMat);
+    wildSleeve.position.y = -0.07;
+    wildSleeve.castShadow = true;
+    shoulder.add(wildSleeve);
+    wildMeshes.push(wildSleeve);
+
+    const armMat = isLeft && config.armTattooTexture
+      ? new THREE.MeshStandardMaterial({ map: config.armTattooTexture, roughness: 0.62 })
+      : skinMat;
+    const wildArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.072, 0.38, 6, 10), armMat);
+    wildArm.position.y = -0.33;
+    wildArm.castShadow = true;
+    shoulder.add(wildArm);
+    wildMeshes.push(wildArm);
+
+    // Ceremony full long sleeve (White Coat sleeve for Damonie, Suit sleeve for Brandon!)
+    const formalSleeve = new THREE.Mesh(new THREE.CapsuleGeometry(0.086, 0.44, 6, 10), ceremonySleeveMat);
+    formalSleeve.position.y = -0.26;
+    formalSleeve.castShadow = true;
+    formalSleeve.visible = false;
+    shoulder.add(formalSleeve);
+    ceremonyMeshes.push(formalSleeve);
+
+    // Crisp white shirt cuff peeking at wrist
+    const cuff = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.076, 0.076, 0.045, 10),
+      new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.4 })
+    );
+    cuff.position.y = -0.50;
+    cuff.visible = false;
+    shoulder.add(cuff);
+    ceremonyMeshes.push(cuff);
+
+    // Damonie's smartwatch on left wrist
+    if (isLeft && config.hasWatch) {
+      const band = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.078, 0.078, 0.045, 10),
+        new THREE.MeshStandardMaterial({ color: '#262930', roughness: 0.5 })
+      );
+      band.position.y = -0.47;
+      shoulder.add(band);
+      wildMeshes.push(band);
+    }
+
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.072, 10, 8), skinMat);
+    hand.position.y = -0.57;
+    hand.castShadow = true;
+    shoulder.add(hand);
+
+    return shoulder;
+  }
+
+  const leftArm = makeArm(-0.33, true);
+  const rightArm = makeArm(0.33, false);
+  torsoGroup.add(leftArm, rightArm);
+
+  // --- HEAD & FACE ---
+  const headGroup = new THREE.Group();
+  headGroup.position.set(0, 0.76, 0);
+  torsoGroup.add(headGroup);
+
+  const cranium = new THREE.Mesh(new THREE.SphereGeometry(0.205, 18, 16), skinMat);
+  cranium.scale.set(0.94, 1.08, 0.98);
+  cranium.position.y = 0.14;
+  cranium.castShadow = true;
+  headGroup.add(cranium);
+
+  // Ears
+  [-0.19, 0.19].forEach((ex, idx) => {
+    const ear = new THREE.Mesh(new THREE.SphereGeometry(0.042, 8, 8), skinMat);
+    ear.scale.set(0.55, 1.1, 0.75);
+    ear.position.set(ex, 0.13, -0.01);
+    headGroup.add(ear);
+
+    if (config.hasEarring && idx === 0) {
+      const stud = new THREE.Mesh(
+        new THREE.SphereGeometry(0.014, 6, 6),
+        new THREE.MeshStandardMaterial({ color: '#ffffff', metalness: 0.95, roughness: 0.1 })
+      );
+      stud.position.set(ex - 0.015, 0.098, 0.008);
+      headGroup.add(stud);
+    }
+  });
+
+  // Nose
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.032, 8, 8), skinMat);
+  nose.scale.set(1.05, 0.85, 1.1);
+  nose.position.set(0, 0.125, 0.195);
+  headGroup.add(nose);
+
+  // Expressive Eyes & Brows
+  const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: '#f8f8f5', roughness: 0.2 });
+  const pupilMat = new THREE.MeshStandardMaterial({ color: '#1b130e', roughness: 0.15 });
+  const browMat = new THREE.MeshStandardMaterial({ color: config.hairColor, roughness: 0.85 });
+
+  [-0.068, 0.068].forEach((ex) => {
+    const sclera = new THREE.Mesh(new THREE.SphereGeometry(0.029, 10, 8), eyeWhiteMat);
+    sclera.scale.set(1.1, 0.82, 0.6);
+    sclera.position.set(ex, 0.165, 0.175);
+    headGroup.add(sclera);
+
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.017, 8, 8), pupilMat);
+    pupil.position.set(ex, 0.165, 0.19);
+    headGroup.add(pupil);
+
+    const brow = new THREE.Mesh(new THREE.BoxGeometry(0.068, 0.018, 0.018), browMat);
+    brow.position.set(ex, 0.21, 0.182);
+    brow.rotation.z = ex < 0 ? 0.1 : -0.1;
+    headGroup.add(brow);
+  });
+
+  // Bright warm smile
+  const smile = new THREE.Mesh(
+    new THREE.TorusGeometry(0.048, 0.013, 6, 12, Math.PI),
+    new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.2 })
+  );
+  smile.rotation.z = Math.PI;
+  smile.position.set(0, 0.088, 0.182);
+  headGroup.add(smile);
+
+  // Facial hair: Damonie has a sleek, clean light 5-o'clock-shadow beard; Brandon has a neat mustache!
+  if (config.hasBeard) {
+    // Sleek, close-cropped 5-o'clock shadow hugging the lower jaw & chin (clean, not bulky!)
+    const shadowMat = new THREE.MeshStandardMaterial({
+      color: '#211814',
+      roughness: 0.9,
+      transparent: true,
+      opacity: 0.62,
+    });
+    const jawShadow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.207, 18, 14, 0, Math.PI * 2, Math.PI * 0.54, Math.PI * 0.46),
+      shadowMat
+    );
+    jawShadow.scale.set(0.955, 1.075, 0.995);
+    jawShadow.position.set(0, 0.14, 0.004);
+    headGroup.add(jawShadow);
+
+    // Tidy trimmed light mustache
+    const stache = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.011, 0.068, 4, 8),
+      new THREE.MeshStandardMaterial({ color: '#1f1713', roughness: 0.9, transparent: true, opacity: 0.78 })
+    );
+    stache.rotation.z = Math.PI / 2;
+    stache.position.set(0, 0.098, 0.194);
+    headGroup.add(stache);
+  } else {
+    // Brandon's clean, neat mustache above his smile!
+    const stacheMat = new THREE.MeshStandardMaterial({ color: '#1c1512', roughness: 0.88 });
+    const brandonStache = new THREE.Mesh(new THREE.CapsuleGeometry(0.013, 0.072, 4, 8), stacheMat);
+    brandonStache.rotation.z = Math.PI / 2;
+    brandonStache.position.set(0, 0.098, 0.195);
+    headGroup.add(brandonStache);
+  }
+
+  // Curly textured hair
+  const hairGroup = new THREE.Group();
+  headGroup.add(hairGroup);
+  const curlCrown = config.fullerHair ? 0.068 : 0.056;
+  const hairHeight = config.fullerHair ? 0.345 : 0.325;
+
+  const hairCap = new THREE.Mesh(
+    new THREE.SphereGeometry(0.212, 14, 12, 0, Math.PI * 2, 0, Math.PI * 0.56),
+    hairMat
+  );
+  hairCap.position.set(0, 0.16, -0.015);
+  hairCap.castShadow = true;
+  hairGroup.add(hairCap);
+
+  const curlPositions = [
+    [0, hairHeight, 0.02], [-0.08, hairHeight - 0.01, 0.06], [0.08, hairHeight - 0.01, 0.06],
+    [-0.13, hairHeight - 0.05, 0.01], [0.13, hairHeight - 0.05, 0.01],
+    [0, hairHeight - 0.01, -0.09], [-0.09, hairHeight - 0.03, -0.09], [0.09, hairHeight - 0.03, -0.09],
+    [-0.05, hairHeight - 0.02, 0.12], [0.05, hairHeight - 0.02, 0.12],
+    [0, hairHeight - 0.08, -0.16], [-0.11, hairHeight - 0.09, -0.13], [0.11, hairHeight - 0.09, -0.13],
+  ];
+  curlPositions.forEach(([cx, cy, cz], idx) => {
+    const puff = new THREE.Mesh(
+      new THREE.DodecahedronGeometry(curlCrown * (0.9 + (idx % 3) * 0.12), 1),
+      hairMat
+    );
+    puff.position.set(cx, cy, cz);
+    puff.castShadow = true;
+    hairGroup.add(puff);
+  });
+
+  // Damonie's iconic sunglasses on his forehead in the wilderness!
+  if (config.hasSunglassesOnHead) {
+    const glassGroup = new THREE.Group();
+    glassGroup.position.set(0, 0.285, 0.155);
+    glassGroup.rotation.x = -0.58;
+    const frameMat = new THREE.MeshStandardMaterial({ color: '#2b1e16', roughness: 0.25, metalness: 0.2 });
+    const lensMat = new THREE.MeshStandardMaterial({ color: '#111418', roughness: 0.08, metalness: 0.75 });
+    [-0.072, 0.072].forEach((lx) => {
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.072, 0.018), frameMat);
+      frame.position.x = lx;
+      glassGroup.add(frame);
+      const lens = new THREE.Mesh(new THREE.BoxGeometry(0.096, 0.054, 0.022), lensMat);
+      lens.position.x = lx;
+      glassGroup.add(lens);
+    });
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.018, 0.018), frameMat);
+    bridge.position.y = 0.014;
+    glassGroup.add(bridge);
+    headGroup.add(glassGroup);
+    wildMeshes.push(glassGroup);
+  }
+
+  function setOutfit(mode) {
+    const isCeremony = mode === 'ceremony';
+    wildMeshes.forEach((m) => (m.visible = !isCeremony));
+    ceremonyMeshes.forEach((m) => (m.visible = isCeremony));
+
+    chest.material = isCeremony ? ceremonyTorsoMat : wildShirtMat;
+    pelvis.material = isCeremony ? ceremonyPantsMat : wildPantsMat;
+    [leftLegData, rightLegData].forEach((ld) => {
+      ld.thigh.material = isCeremony ? ceremonyPantsMat : wildPantsMat;
+      ld.shin.material = isCeremony ? ceremonyPantsMat : wildPantsMat;
+      ld.boot.material = isCeremony ? ceremonyShoeMat : wildBootMat;
+    });
+  }
+
+  return {
+    name: config.name,
+    root,
+    bodyPivot,
+    torsoGroup,
+    headGroup,
+    leftArm,
+    rightArm,
+    leftLeg,
+    rightLeg,
+    setOutfit,
+    velocity: new THREE.Vector3(),
+    heading: 0,
+    walkCycle: 0,
+    forageAnim: 0,
+    cozyAnim: 0,
+    stepAccum: 0,
+  };
+}
+
+function createCharacters(scene) {
+  const brandon = buildStylizedCharacter({
+    name: 'Brandon',
+    skinColor: '#be8358',
+    hairColor: '#1a1412',
+    wildPantsColor: '#3a4236',
+    wildBootColor: '#6e492d',
+    wildShirtTexture: createWildernessShirtTexture('#c6b48e', '#a5936d'), // Lara-Croft khaki expedition shirt
+    packColor: '#8d362d',
+    bedrollColor: '#d9c89e',
+    isWhiteCoat: false, // Transforms into a sharp tailored suit!
+    hasBeard: false,
+    fullerHair: false,
+    hasChain: false,
+    hasEarring: false,
+    hasWatch: false,
+    hasSunglassesOnHead: false,
+  });
+
+  const damonie = buildStylizedCharacter({
+    name: 'Damonie',
+    skinColor: '#6f4329',
+    hairColor: '#141110',
+    wildPantsColor: '#9b8461',
+    wildBootColor: '#4f3421',
+    wildShirtTexture: createWildernessShirtTexture('#3f5a40', '#2c412d'), // Rugged forest-olive wilderness gear
+    armTattooTexture: createDamonieArmTattooTexture(),
+    packColor: '#334637',
+    bedrollColor: '#c48f48',
+    isWhiteCoat: true, // Transforms into Suit + White Coat + Stethoscope!
+    hasBeard: true,
+    fullerHair: true,
+    hasChain: true,
+    hasEarring: true,
+    hasWatch: true,
+    hasSunglassesOnHead: true,
+  });
+
+  brandon.root.position.set(0.7, getTerrainHeight(0.7, 9.5), 9.5);
+  brandon.heading = Math.PI;
+  brandon.root.rotation.y = brandon.heading;
+
+  damonie.root.position.set(2.0, getTerrainHeight(2.0, 9.7), 9.7);
+  damonie.heading = Math.PI;
+  damonie.root.rotation.y = damonie.heading;
+
+  scene.add(brandon.root, damonie.root);
+  return { brandon, damonie };
+}
+
+function resolveBounds(pos, obstacles, boundsConfig, radius = 0.45) {
+  if (boundsConfig.type === 'forest') {
+    const distFromCenter = Math.hypot(pos.x, pos.z);
+    if (distFromCenter > MAP_RADIUS - 0.8) {
+      const scale = (MAP_RADIUS - 0.8) / distFromCenter;
+      pos.x *= scale;
+      pos.z *= scale;
+    }
+    if (isInPond(pos.x, pos.z, 0.35)) {
+      const dx = pos.x - -7.5;
+      const dz = pos.z - -6.5;
+      const d = Math.hypot(dx, dz) || 0.001;
+      const pushR = 6.8 - 0.32;
+      pos.x = -7.5 + (dx / d) * pushR;
+      pos.z = -6.5 + (dz / d) * pushR;
+    }
+  } else if (boundsConfig.type === 'campus') {
+    pos.x = THREE.MathUtils.clamp(pos.x, -21, 21);
+    pos.z = THREE.MathUtils.clamp(pos.z, -16.5, 22);
+  }
+
+  for (const obs of obstacles) {
+    const dx = pos.x - obs.x;
+    const dz = pos.z - obs.z;
+    const minDist = obs.radius + radius;
+    const d = Math.hypot(dx, dz);
+    if (d < minDist && d > 0.0001) {
+      const push = minDist - d;
+      pos.x += (dx / d) * push;
+      pos.z += (dz / d) * push;
+    }
+  }
+}
+
+function lerpAngle(a, b, t) {
+  let diff = ((b - a + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+  return a + diff * t;
+}
+
+function updateCharacters({
+  leader,
+  companion,
+  inputDir,
+  isRunning,
+  obstacles,
+  moosePos,
+  getHeightFn,
+  boundsConfig,
+  dt,
+  elapsed,
+  audio,
+  spawnHeart,
+}) {
+  const moveSpeed = isRunning ? 6.2 : 3.7;
+  const targetVx = inputDir.x * moveSpeed;
+  const targetVz = inputDir.z * moveSpeed;
+  leader.velocity.x = THREE.MathUtils.lerp(leader.velocity.x, targetVx, Math.min(1, dt * 10));
+  leader.velocity.z = THREE.MathUtils.lerp(leader.velocity.z, targetVz, Math.min(1, dt * 10));
+
+  const leaderSpeed = Math.hypot(leader.velocity.x, leader.velocity.z);
+  leader.root.position.x += leader.velocity.x * dt;
+  leader.root.position.z += leader.velocity.z * dt;
+
+  // Gravitation & side-by-side companion steering
+  const sideSign = companion.name === 'Damonie' ? 1 : -1;
+  const cozyActive = leader.cozyAnim > 0 || companion.cozyAnim > 0;
+  const isLeaderIdle = leaderSpeed < 0.25;
+
+  const sideDist = cozyActive ? 0.72 : isLeaderIdle ? 0.96 : 1.32;
+  const trailDist = cozyActive ? 0.0 : isLeaderIdle ? 0.08 : 0.30;
+
+  const forwardX = Math.sin(leader.heading);
+  const forwardZ = Math.cos(leader.heading);
+  const rightX = Math.cos(leader.heading);
+  const rightZ = -Math.sin(leader.heading);
+
+  const desiredX = leader.root.position.x + rightX * sideDist * sideSign - forwardX * trailDist;
+  const desiredZ = leader.root.position.z + rightZ * sideDist * sideSign - forwardZ * trailDist;
+
+  const toTargetX = desiredX - companion.root.position.x;
+  const toTargetZ = desiredZ - companion.root.position.z;
+  const distToDesired = Math.hypot(toTargetX, toTargetZ);
+
+  let compTargetVx = 0;
+  let compTargetVz = 0;
+  if (distToDesired > 0.14) {
+    const pullSpeed = THREE.MathUtils.clamp(distToDesired * 2.75, 0.7, 6.6);
+    compTargetVx = (toTargetX / distToDesired) * pullSpeed;
+    compTargetVz = (toTargetZ / distToDesired) * pullSpeed;
+  }
+
+  const pairDx = companion.root.position.x - leader.root.position.x;
+  const pairDz = companion.root.position.z - leader.root.position.z;
+  const pairDist = Math.hypot(pairDx, pairDz);
+  if (isLeaderIdle && pairDist > 0.88 && pairDist < 3.5) {
+    const gentlePull = cozyActive ? 1.4 : 0.22;
+    leader.root.position.x += (pairDx / pairDist) * gentlePull * dt;
+    leader.root.position.z += (pairDz / pairDist) * gentlePull * dt;
+  }
+
+  if (pairDist < 0.68 && pairDist > 0.001) {
+    const sep = (0.68 - pairDist) * 0.5;
+    leader.root.position.x -= (pairDx / pairDist) * sep;
+    leader.root.position.z -= (pairDz / pairDist) * sep;
+    companion.root.position.x += (pairDx / pairDist) * sep;
+    companion.root.position.z += (pairDz / pairDist) * sep;
+  }
+
+  companion.velocity.x = THREE.MathUtils.lerp(companion.velocity.x, compTargetVx, Math.min(1, dt * 7.5));
+  companion.velocity.z = THREE.MathUtils.lerp(companion.velocity.z, compTargetVz, Math.min(1, dt * 7.5));
+  companion.root.position.x += companion.velocity.x * dt;
+  companion.root.position.z += companion.velocity.z * dt;
+
+  const allObs = moosePos
+    ? [...obstacles, { x: moosePos.x, z: moosePos.z, radius: 1.55 }]
+    : obstacles;
+
+  resolveBounds(leader.root.position, allObs, boundsConfig, 0.45);
+  resolveBounds(companion.root.position, allObs, boundsConfig, 0.45);
+
+  leader.root.position.y = getHeightFn(leader.root.position.x, leader.root.position.z);
+  companion.root.position.y = getHeightFn(companion.root.position.x, companion.root.position.z);
+
+  if (pairDist < 1.35 && Math.random() < dt * (cozyActive ? 6.5 : 0.65)) {
+    const mid = new THREE.Vector3(
+      (leader.root.position.x + companion.root.position.x) * 0.5,
+      Math.max(leader.root.position.y, companion.root.position.y) + 1.55,
+      (leader.root.position.z + companion.root.position.z) * 0.5
+    );
+    spawnHeart(mid, cozyActive ? 1.15 : 0.75);
+  }
+
+  const pair = [
+    { char: leader, other: companion },
+    { char: companion, other: leader },
+  ];
+
+  for (const { char, other } of pair) {
+    const spd = Math.hypot(char.velocity.x, char.velocity.z);
+    if (spd > 0.25) {
+      const targetHeading = Math.atan2(char.velocity.x, char.velocity.z);
+      char.heading = lerpAngle(char.heading, targetHeading, Math.min(1, dt * 10));
+    } else if (cozyActive) {
+      const toOther = Math.atan2(
+        other.root.position.x - char.root.position.x,
+        other.root.position.z - char.root.position.z
+      );
+      char.heading = lerpAngle(char.heading, toOther, Math.min(1, dt * 5));
+    }
+    char.root.rotation.y = char.heading;
+
+    const toOtherAngle = Math.atan2(
+      other.root.position.x - char.root.position.x,
+      other.root.position.z - char.root.position.z
+    );
+    let relAngle = ((toOtherAngle - char.heading + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+    const lookWeight = pairDist < 2.6 ? (spd < 0.4 ? 0.55 : 0.22) : 0;
+    const targetHeadYaw = THREE.MathUtils.clamp(relAngle, -0.75, 0.75) * lookWeight;
+    char.headGroup.rotation.y = THREE.MathUtils.lerp(char.headGroup.rotation.y, targetHeadYaw, dt * 5);
+
+    if (spd > 0.15) {
+      const cycleRate = spd * 2.55;
+      char.walkCycle += dt * cycleRate;
+      const swing = Math.sin(char.walkCycle) * Math.min(0.68, spd * 0.14);
+      char.leftLeg.rotation.x = swing;
+      char.rightLeg.rotation.x = -swing;
+      char.leftArm.rotation.x = -swing * 0.72;
+      char.rightArm.rotation.x = swing * 0.72;
+      char.bodyPivot.position.y = Math.abs(Math.sin(char.walkCycle)) * 0.055;
+
+      if (char === leader) {
+        char.stepAccum += dt * cycleRate;
+        if (char.stepAccum >= Math.PI) {
+          char.stepAccum -= Math.PI;
+          audio.playFootstep();
+        }
+      }
+    } else {
+      char.leftLeg.rotation.x = THREE.MathUtils.lerp(char.leftLeg.rotation.x, 0, dt * 8);
+      char.rightLeg.rotation.x = THREE.MathUtils.lerp(char.rightLeg.rotation.x, 0, dt * 8);
+      char.leftArm.rotation.x = THREE.MathUtils.lerp(char.leftArm.rotation.x, 0, dt * 8);
+      char.rightArm.rotation.x = THREE.MathUtils.lerp(char.rightArm.rotation.x, 0, dt * 8);
+      char.bodyPivot.position.y = Math.sin(elapsed * 2.2 + (char.name === 'Damonie' ? 1 : 0)) * 0.015;
+    }
+
+    if (char.forageAnim > 0) {
+      char.forageAnim = Math.max(0, char.forageAnim - dt);
+      const t = Math.sin((char.forageAnim / 0.55) * Math.PI);
+      char.torsoGroup.rotation.x = t * 0.52;
+      char.rightArm.rotation.x = -t * 1.1;
+    } else {
+      char.torsoGroup.rotation.x = THREE.MathUtils.lerp(char.torsoGroup.rotation.x, 0, dt * 8);
+    }
+
+    if (char.cozyAnim > 0) {
+      char.cozyAnim = Math.max(0, char.cozyAnim - dt);
+      const t = Math.sin((char.cozyAnim / 2.2) * Math.PI);
+      char.headGroup.rotation.z = t * (char.name === 'Brandon' ? -0.14 : 0.14);
+      char.torsoGroup.rotation.z = t * (char.name === 'Brandon' ? -0.07 : 0.07);
+    } else {
+      char.headGroup.rotation.z = THREE.MathUtils.lerp(char.headGroup.rotation.z, 0, dt * 6);
+      char.torsoGroup.rotation.z = THREE.MathUtils.lerp(char.torsoGroup.rotation.z, 0, dt * 6);
+    }
+  }
+}
+
+
+// === moose.js ===
+
+
+function mooseLerpAngle(a, b, t) {
+  let diff = ((b - a + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+  return a + diff * t;
+}
+
+function createBigFatMoose(scene) {
+  const root = new THREE.Group();
+  const bodyGroup = new THREE.Group();
+  root.add(bodyGroup);
+
+  const furDark = new THREE.MeshStandardMaterial({ color: '#3b2519', roughness: 0.92, flatShading: true });
+  const furMid = new THREE.MeshStandardMaterial({ color: '#543726', roughness: 0.9, flatShading: true });
+  const snoutMat = new THREE.MeshStandardMaterial({ color: '#4a3123', roughness: 0.85 });
+  const hoofMat = new THREE.MeshStandardMaterial({ color: '#1a1512', roughness: 0.6 });
+  const antlerMat = new THREE.MeshStandardMaterial({ color: '#dfd0b4', roughness: 0.65 });
+  const eyeMat = new THREE.MeshStandardMaterial({ color: '#140f0c', roughness: 0.12 });
+  const eyeGlintMat = new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 0.4 });
+
+  // --- ENORMOUS CHONKY ROUND BELLY & TORSO ---
+  const bellyMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(1.18, 2), furDark);
+  bellyMesh.scale.set(1.22, 1.08, 1.38);
+  bellyMesh.position.set(0, 1.58, 0);
+  bellyMesh.castShadow = true;
+  bellyMesh.receiveShadow = true;
+  bodyGroup.add(bellyMesh);
+
+  // Extra low-hanging chubby underbelly bulge (for maximum fat moose charm!)
+  const chubBelly = new THREE.Mesh(new THREE.SphereGeometry(1.06, 16, 14), furMid);
+  chubBelly.scale.set(1.26, 0.82, 1.18);
+  chubBelly.position.set(0, 1.18, 0.04);
+  chubBelly.castShadow = true;
+  bodyGroup.add(chubBelly);
+
+  // Iconic Moose Shoulder Hump
+  const hump = new THREE.Mesh(new THREE.DodecahedronGeometry(0.76, 1), furDark);
+  hump.scale.set(1.05, 0.95, 1.12);
+  hump.position.set(0, 2.38, 0.62);
+  hump.castShadow = true;
+  bodyGroup.add(hump);
+
+  // Big round rump
+  const rump = new THREE.Mesh(new THREE.SphereGeometry(0.92, 14, 12), furMid);
+  rump.scale.set(1.15, 0.98, 0.95);
+  rump.position.set(0, 1.62, -1.12);
+  rump.castShadow = true;
+  bodyGroup.add(rump);
+
+  // Cute stubby moose tail
+  const tail = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.38, 6), furDark);
+  tail.rotation.x = -0.65;
+  tail.position.set(0, 1.65, -1.92);
+  bodyGroup.add(tail);
+
+  // --- FOUR STURDY LEGS ---
+  function makeMooseLeg(x, z) {
+    const legPivot = new THREE.Group();
+    legPivot.position.set(x, 1.12, z);
+
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.17, 0.62, 8), furDark);
+    upper.position.y = -0.28;
+    upper.castShadow = true;
+    legPivot.add(upper);
+
+    const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.56, 8), furMid);
+    lower.position.y = -0.78;
+    lower.castShadow = true;
+    legPivot.add(lower);
+
+    const hoof = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.17, 0.16, 8), hoofMat);
+    hoof.position.y = -1.08;
+    hoof.castShadow = true;
+    legPivot.add(hoof);
+
+    return legPivot;
+  }
+
+  const legs = [
+    makeMooseLeg(-0.62, 0.85),
+    makeMooseLeg(0.62, 0.85),
+    makeMooseLeg(-0.62, -0.82),
+    makeMooseLeg(0.62, -0.82),
+  ];
+  legs.forEach((l) => bodyGroup.add(l));
+
+  // --- THICK NECK & EXPRESSIVE MOOSE HEAD ---
+  const neckPivot = new THREE.Group();
+  neckPivot.position.set(0, 2.02, 1.25);
+  bodyGroup.add(neckPivot);
+
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.62, 0.85, 10), furDark);
+  neck.rotation.x = 0.62;
+  neck.position.set(0, 0.08, 0.25);
+  neck.castShadow = true;
+  neckPivot.add(neck);
+
+  // Classic Moose Chin Bell (Dewlap) dangling under the throat!
+  const bell = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.28, 6, 8), furDark);
+  bell.position.set(0, -0.34, 0.42);
+  bell.rotation.x = 0.18;
+  neckPivot.add(bell);
+
+  // Head Group
+  const headGroup = new THREE.Group();
+  headGroup.position.set(0, 0.34, 0.62);
+  neckPivot.add(headGroup);
+
+  const skull = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.52, 0.62), furDark);
+  skull.castShadow = true;
+  headGroup.add(skull);
+
+  // Big overhanging bulbous moose snout!
+  const snout = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.48, 8, 12), snoutMat);
+  snout.rotation.x = Math.PI / 2 + 0.18;
+  snout.scale.set(1.05, 1.0, 0.92);
+  snout.position.set(0, -0.09, 0.54);
+  snout.castShadow = true;
+  headGroup.add(snout);
+
+  // Big cute nostrils
+  [-0.1, 0.1].forEach((nx) => {
+    const nostril = new THREE.Mesh(new THREE.SphereGeometry(0.052, 8, 8), hoofMat);
+    nostril.position.set(nx, -0.14, 0.86);
+    headGroup.add(nostril);
+  });
+
+  // Big friendly eyes with catchlights
+  [-0.27, 0.27].forEach((ex) => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.068, 10, 8), eyeMat);
+    eye.position.set(ex, 0.08, 0.16);
+    headGroup.add(eye);
+
+    const glint = new THREE.Mesh(new THREE.SphereGeometry(0.022, 6, 6), eyeGlintMat);
+    glint.position.set(ex * 1.08, 0.105, 0.21);
+    headGroup.add(glint);
+  });
+
+  // Big expressive moose ears
+  const ears = [];
+  [-1, 1].forEach((side) => {
+    const ear = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.38, 7), furMid);
+    ear.position.set(side * 0.34, 0.28, -0.08);
+    ear.rotation.z = -side * 0.65;
+    ear.rotation.x = -0.2;
+    headGroup.add(ear);
+    ears.push(ear);
+  });
+
+  // --- MASSIVE SWEEPING PALMATE ANTLERS ---
+  [-1, 1].forEach((side) => {
+    const antlerGroup = new THREE.Group();
+    antlerGroup.position.set(side * 0.2, 0.28, 0.0);
+
+    // Main beam sweeping outward
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.075, 0.72, 8), antlerMat);
+    beam.position.set(side * 0.3, 0.16, -0.04);
+    beam.rotation.z = -side * 1.05;
+    beam.castShadow = true;
+    antlerGroup.add(beam);
+
+    // Wide palmate paddle
+    const paddle = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.11, 0.56), antlerMat);
+    paddle.position.set(side * 0.82, 0.44, -0.08);
+    paddle.rotation.z = side * 0.38;
+    paddle.rotation.y = -side * 0.25;
+    paddle.castShadow = true;
+    antlerGroup.add(paddle);
+
+    // Antler tines/prongs fanning off the paddle
+    const prongs = [
+      [0.62, 0.62, 0.24, 0.25],
+      [0.85, 0.74, 0.16, 0.1],
+      [1.08, 0.78, 0.0, -0.05],
+      [1.18, 0.72, -0.22, -0.25],
+      [0.95, 0.65, -0.34, -0.35],
+    ];
+    prongs.forEach(([px, py, pz, rx]) => {
+      const tine = new THREE.Mesh(new THREE.ConeGeometry(0.042, 0.34, 6), antlerMat);
+      tine.position.set(side * px, py, pz);
+      tine.rotation.z = -side * 0.22;
+      tine.rotation.x = rx;
+      tine.castShadow = true;
+      antlerGroup.add(tine);
+    });
+
+    headGroup.add(antlerGroup);
+  });
+
+  // Start the Big Fat Moose in a sunny meadow right in front of the players!
+  const startX = -1.2;
+  const startZ = -1.8;
+  root.position.set(startX, getTerrainHeight(startX, startZ), startZ);
+  root.rotation.y = 0.4;
+  scene.add(root);
+
+  const waypoints = [
+    new THREE.Vector2(-1.2, -1.8),
+    new THREE.Vector2(4.2, -5.5),
+    new THREE.Vector2(7.8, -0.8),
+    new THREE.Vector2(2.8, 9.5),
+    new THREE.Vector2(-4.5, 6.2),
+    new THREE.Vector2(-0.5, -10.5),
+  ];
+
+  const moose = {
+    root,
+    bodyGroup,
+    bellyMesh,
+    chubBelly,
+    neckPivot,
+    headGroup,
+    legs,
+    ears,
+    tail,
+    heading: 0.4,
+    walkCycle: 0,
+    waypointIdx: 1,
+    state: 'wander', // 'wander' | 'graze' | 'happy'
+    stateTimer: 3.5,
+    fedCount: 0,
+    maxFed: 5,
+    happyTimer: 0,
+    gruntTimer: 6.0,
+
+    feed(spawnHeart, audio) {
+      this.fedCount = Math.min(this.maxFed, this.fedCount + 1);
+      this.happyTimer = 3.2;
+      this.state = 'happy';
+      audio.playMooseGrunt(true);
+
+      // Burst of hearts over the moose's big antlers!
+      for (let i = 0; i < 6; i++) {
+        const p = this.root.position.clone().add(
+          new THREE.Vector3((Math.random() - 0.5) * 1.6, 3.0 + Math.random() * 0.7, (Math.random() - 0.5) * 1.4)
+        );
+        spawnHeart(p, 1.25);
+      }
+      return this.fedCount;
+    },
+
+    update(dt, elapsed, playerPos, playerHasFood, obstacles, audio, spawnHeart) {
+      this.gruntTimer -= dt;
+
+      const distToPlayer = Math.hypot(
+        playerPos.x - this.root.position.x,
+        playerPos.z - this.root.position.z
+      );
+
+      if (this.happyTimer > 0) {
+        this.happyTimer -= dt;
+        // Ecstatic chonky belly-jiggle happy dance!
+        const bounce = Math.abs(Math.sin(elapsed * 8.5));
+        this.bodyGroup.position.y = bounce * 0.18;
+        this.bodyGroup.rotation.z = Math.sin(elapsed * 8.5) * 0.08;
+        this.chubBelly.scale.x = 1.26 + Math.sin(elapsed * 14) * 0.08;
+        this.neckPivot.rotation.x = -0.15 + Math.sin(elapsed * 10) * 0.2;
+        this.tail.rotation.z = Math.sin(elapsed * 18) * 0.5;
+        if (Math.random() < dt * 2.5) {
+          spawnHeart(
+            this.root.position.clone().add(new THREE.Vector3(0, 3.1, 0)),
+            1.0
+          );
+        }
+        return;
+      }
+
+      this.bodyGroup.position.y = THREE.MathUtils.lerp(this.bodyGroup.position.y, 0, dt * 6);
+      this.chubBelly.scale.x = THREE.MathUtils.lerp(this.chubBelly.scale.x, 1.26, dt * 5);
+
+      let moving = false;
+      let targetX = this.root.position.x;
+      let targetZ = this.root.position.z;
+
+      // If player is nearby and carrying food (or moose is best buddy!), moose turns & waddles closer!
+      if ((playerHasFood && distToPlayer < 10.5 && distToPlayer > 3.2) || (this.fedCount >= this.maxFed && distToPlayer < 14 && distToPlayer > 3.8)) {
+        targetX = playerPos.x;
+        targetZ = playerPos.z;
+        moving = true;
+        this.state = 'wander';
+      } else if (distToPlayer <= 3.8) {
+        // Stand adorably looking at the players waiting for snacks
+        const toPlayer = Math.atan2(playerPos.x - this.root.position.x, playerPos.z - this.root.position.z);
+        this.heading = mooseLerpAngle(this.heading, toPlayer, dt * 2.8);
+        this.neckPivot.rotation.x = THREE.MathUtils.lerp(this.neckPivot.rotation.x, 0.05, dt * 3);
+        if (this.gruntTimer <= 0) {
+          this.gruntTimer = 9 + Math.random() * 6;
+          audio.playMooseGrunt(false);
+        }
+      } else {
+        // Gentle woodland patrol & grazing
+        this.stateTimer -= dt;
+        if (this.state === 'graze') {
+          this.neckPivot.rotation.x = THREE.MathUtils.lerp(this.neckPivot.rotation.x, 0.72, dt * 2.2);
+          if (this.stateTimer <= 0) {
+            this.state = 'wander';
+            this.stateTimer = 8 + Math.random() * 6;
+            this.waypointIdx = (this.waypointIdx + 1) % waypoints.length;
+          }
+        } else {
+          const wp = waypoints[this.waypointIdx];
+          targetX = wp.x;
+          targetZ = wp.y;
+          const dWp = Math.hypot(targetX - this.root.position.x, targetZ - this.root.position.z);
+          if (dWp < 1.5 || this.stateTimer <= 0) {
+            this.state = 'graze';
+            this.stateTimer = 4.0 + Math.random() * 4.5;
+          } else {
+            moving = true;
+          }
+        }
+      }
+
+      if (moving) {
+        const dx = targetX - this.root.position.x;
+        const dz = targetZ - this.root.position.z;
+        const desiredHeading = Math.atan2(dx, dz);
+        this.heading = mooseLerpAngle(this.heading, desiredHeading, dt * 2.2);
+
+        const speed = 1.45; // Heavy, lovable chonky waddle speed
+        const nextX = this.root.position.x + Math.sin(this.heading) * speed * dt;
+        const nextZ = this.root.position.z + Math.cos(this.heading) * speed * dt;
+
+        if (!isInPond(nextX, nextZ, -0.5) && Math.hypot(nextX, nextZ) < MAP_RADIUS - 2.5) {
+          this.root.position.x = nextX;
+          this.root.position.z = nextZ;
+        }
+
+        // Slide gently around trees/rocks
+        for (const obs of obstacles) {
+          const ox = this.root.position.x - obs.x;
+          const oz = this.root.position.z - obs.z;
+          const minD = obs.radius + 1.5;
+          const d = Math.hypot(ox, oz);
+          if (d < minD && d > 0.001) {
+            this.root.position.x += (ox / d) * (minD - d) * 0.4;
+            this.root.position.z += (oz / d) * (minD - d) * 0.4;
+          }
+        }
+
+        // Adorable heavy waddle + belly sway!
+        this.walkCycle += dt * 4.2;
+        const sw = Math.sin(this.walkCycle);
+        this.legs[0].rotation.x = sw * 0.36;
+        this.legs[3].rotation.x = sw * 0.36;
+        this.legs[1].rotation.x = -sw * 0.36;
+        this.legs[2].rotation.x = -sw * 0.36;
+
+        this.bodyGroup.rotation.z = sw * 0.065; // Side-to-side fat moose waddle!
+        this.chubBelly.position.x = sw * 0.06;  // Subtle belly jiggle
+        this.neckPivot.rotation.x = THREE.MathUtils.lerp(this.neckPivot.rotation.x, 0.08 + Math.abs(sw) * 0.08, dt * 4);
+      } else {
+        this.legs.forEach((l) => {
+          l.rotation.x = THREE.MathUtils.lerp(l.rotation.x, 0, dt * 5);
+        });
+        this.bodyGroup.rotation.z = THREE.MathUtils.lerp(this.bodyGroup.rotation.z, 0, dt * 5);
+        this.chubBelly.position.x = THREE.MathUtils.lerp(this.chubBelly.position.x, 0, dt * 5);
+      }
+
+      // Ear twitch & breathing
+      const earTwitch = Math.sin(elapsed * 3.1) > 0.92 ? Math.sin(elapsed * 28) * 0.25 : 0;
+      this.ears[0].rotation.z = 0.65 + earTwitch;
+      this.ears[1].rotation.z = -0.65 - earTwitch;
+      this.bellyMesh.scale.y = 1.08 + Math.sin(elapsed * 1.8) * 0.025;
+
+      this.root.rotation.y = this.heading;
+      this.root.position.y = getTerrainHeight(this.root.position.x, this.root.position.z);
+    },
+  };
+
+  return moose;
+}
+
+
+// === main.js ===
+
+
+
+
+
+
+
+
+
+
+
+// === RENDERER & SCENE ===
+const container = document.getElementById('canvas-container');
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.08;
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2('#d9b68c', 0.0155);
+
+const camera = new THREE.PerspectiveCamera(54, window.innerWidth / window.innerHeight, 0.1, 260);
+
+// === POST-PROCESSING (Bloom + Filmic Output) ===
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.34, // subtle magical bloom
+  0.65,
+  0.76
+);
+composer.addPass(bloomPass);
+composer.addPass(new OutputPass());
+
+// === LIGHTING & TIME-OF-DAY PRESETS ===
+const hemiLight = new THREE.HemisphereLight('#ffe8c4', '#314d33', 0.9);
+scene.add(hemiLight);
+
+const sunLight = new THREE.DirectionalLight('#ffd79a', 2.4);
+sunLight.position.set(28, 19, -34);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(2048, 2048);
+sunLight.shadow.camera.near = 2;
+sunLight.shadow.camera.far = 110;
+const d = 34;
+sunLight.shadow.camera.left = -d;
+sunLight.shadow.camera.right = d;
+sunLight.shadow.camera.top = d;
+sunLight.shadow.camera.bottom = -d;
+sunLight.shadow.bias = -0.0005;
+scene.add(sunLight);
+
+const SCENE_THEMES = {
+  forest: {
+    // Mystical, lush, enchanting misty Shenandoah forest atmosphere
+    topColor: '#1f4e5f',
+    horizonColor: '#98c7b8',
+    bottomColor: '#254233',
+    sunColor: '#e8ffd8',
+    sunDir: new THREE.Vector3(-0.48, 0.36, -0.80).normalize(),
+    sunIntensity: 2.05,
+    hemiSky: '#c7ece2',
+    hemiGround: '#1e3c28',
+    hemiIntensity: 1.05,
+    fogColor: '#8eb5a7',
+    fogDensity: 0.0185,
+    beamIntensity: 0.14,
+    starIntensity: 0.08,
+    exposure: 1.06,
+  },
+  campus: {
+    // Rich Golden Hour locked for the EVMS MD Class of 2031 White Coat Ceremony
+    topColor: '#2c5d8a',
+    horizonColor: '#f7b977',
+    bottomColor: '#475c4a',
+    sunColor: '#fff0c4',
+    sunDir: new THREE.Vector3(0.58, 0.34, -0.74).normalize(),
+    sunIntensity: 2.45,
+    hemiSky: '#ffe8c4',
+    hemiGround: '#324d34',
+    hemiIntensity: 0.92,
+    fogColor: '#d9b58b',
+    fogDensity: 0.0115,
+    beamIntensity: 0.08,
+    starIntensity: 0.0,
+    exposure: 1.08,
+  },
+};
+
+// === BUILD WORLDS, CHARACTERS & THE BIG FAT MOOSE ===
+const audio = new ForestAudio();
+const world = createForestWorld(scene);
+const campus = createEVMSCampus(scene);
+const { brandon, damonie } = createCharacters(scene);
+const moose = createBigFatMoose(scene);
+
+let currentAct = 'forest'; // 'forest' | 'campus'
+let isTransitioning = false;
+let finaleShown = false;
+
+let leader = brandon;
+let companion = damonie;
+
+function applySceneTheme(themeKey) {
+  const p = SCENE_THEMES[themeKey];
+  world.skyUniforms.uTopColor.value.set(p.topColor);
+  world.skyUniforms.uHorizonColor.value.set(p.horizonColor);
+  world.skyUniforms.uBottomColor.value.set(p.bottomColor);
+  world.skyUniforms.uSunColor.value.set(p.sunColor);
+  world.skyUniforms.uSunDir.value.copy(p.sunDir);
+  world.skyUniforms.uStarIntensity.value = p.starIntensity;
+  world.waterUniforms.uSunColor.value.set(p.sunColor);
+  world.beamMat.uniforms.uIntensity.value = p.beamIntensity;
+
+  sunLight.position.copy(p.sunDir).multiplyScalar(48);
+  sunLight.color.set(p.sunColor);
+  sunLight.intensity = p.sunIntensity;
+  hemiLight.color.set(p.hemiSky);
+  hemiLight.groundColor.set(p.hemiGround);
+  hemiLight.intensity = p.hemiIntensity;
+  scene.fog.color.set(p.fogColor);
+  scene.fog.density = p.fogDensity;
+  renderer.toneMappingExposure = p.exposure;
+}
+applySceneTheme('forest');
+
+// === FLOATING AMBIENT PARTICLES (POLLEN / FIREFLIES) ===
+const glowTex = createSoftGlowTexture();
+const heartTex = createHeartTexture();
+
+const particleCount = 190;
+const pPositions = new Float32Array(particleCount * 3);
+const pPhases = new Float32Array(particleCount);
+for (let i = 0; i < particleCount; i++) {
+  pPositions[i * 3] = (Math.random() - 0.5) * 52;
+  pPositions[i * 3 + 1] = 0.8 + Math.random() * 6.5;
+  pPositions[i * 3 + 2] = (Math.random() - 0.5) * 52;
+  pPhases[i] = Math.random() * Math.PI * 2;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+const pMat = new THREE.PointsMaterial({
+  map: glowTex,
+  color: '#ffe599',
+  size: 0.42,
+  transparent: true,
+  opacity: 0.78,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+});
+const ambientParticles = new THREE.Points(pGeo, pMat);
+scene.add(ambientParticles);
+
+// Floating 3D Heart & Sparkle Sprites
+const activeSprites = [];
+function spawnHeart(worldPos, scale = 1.0, isGoldSparkle = false) {
+  const mat = new THREE.SpriteMaterial({
+    map: isGoldSparkle ? glowTex : heartTex,
+    color: isGoldSparkle ? '#ffe28a' : '#ff9ec2',
+    transparent: true,
+    opacity: 0.95,
+    depthWrite: false,
+  });
+  const sp = new THREE.Sprite(mat);
+  sp.position.copy(worldPos);
+  sp.scale.set(0.32 * scale, 0.32 * scale, 1);
+  scene.add(sp);
+  activeSprites.push({
+    sprite: sp,
+    vy: 0.55 + Math.random() * 0.45,
+    vx: (Math.random() - 0.5) * 0.35,
+    vz: (Math.random() - 0.5) * 0.35,
+    life: 1.5 + Math.random() * 0.6,
+    maxLife: 1.8,
+  });
+}
+
+// === SPEECH BUBBLES (3D -> 2D SCREEN PROJECTION) ===
+const speechLayer = document.getElementById('speech-layer');
+let activeSpeech = null;
+
+function showSpeech(character, text, duration = 3.2) {
+  if (activeSpeech) {
+    activeSpeech.el.remove();
+    activeSpeech = null;
+  }
+  const el = document.createElement('div');
+  el.className = 'speech-bubble';
+  el.textContent = text;
+  speechLayer.appendChild(el);
+  activeSpeech = { character, el, timer: duration };
+}
+
+// === TOAST NOTIFICATIONS ===
+const toastEl = document.getElementById('toast');
+let toastTimer = 0;
+function showToast(msg, duration = 2.8) {
+  toastEl.textContent = msg;
+  toastEl.classList.remove('hidden');
+  toastTimer = duration;
+}
+
+// === FORAGING INVENTORY ===
+const inventory = {
+  berry: 0,
+  mushroom: 0,
+  apple: 0,
+  strawberry: 0,
+  truffle: 0,
+};
+let totalForaged = 0;
+
+function updateHUD() {
+  document.getElementById('count-berry').textContent = inventory.berry;
+  document.getElementById('count-mushroom').textContent = inventory.mushroom;
+  document.getElementById('count-apple').textContent = inventory.apple;
+  document.getElementById('count-strawberry').textContent = inventory.strawberry;
+  document.getElementById('count-truffle').textContent = inventory.truffle;
+  document.getElementById('total-foraged').textContent = `${totalForaged} / ${world.forageables.length}`;
+
+  const pct = (moose.fedCount / moose.maxFed) * 100;
+  document.getElementById('moose-meter-fill').style.width = `${pct}%`;
+  const moodLabel = document.getElementById('moose-mood-label');
+  if (moose.fedCount === 0) moodLabel.textContent = 'Hungry & Curious';
+  else if (moose.fedCount < 3) moodLabel.textContent = 'Loves Snacks!';
+  else if (moose.fedCount < 5) moodLabel.textContent = 'Happy Chonky Boy';
+  else moodLabel.textContent = 'Best Forest Buddy ♥';
+}
+
+function getTotalSnacksInBasket() {
+  return inventory.berry + inventory.mushroom + inventory.apple + inventory.strawberry + inventory.truffle;
+}
+
+function consumeOneSnack() {
+  const order = ['apple', 'berry', 'strawberry', 'mushroom', 'truffle'];
+  for (const k of order) {
+    if (inventory[k] > 0) {
+      inventory[k]--;
+      return k;
+    }
+  }
+  return null;
+}
+
+// === PORTAL TRANSITION (FOREST -> EVMS WHITE COAT CEREMONY!) ===
+const portalFlash = document.getElementById('portal-flash');
+const finaleOverlay = document.getElementById('finale-overlay');
+
+function enterVirginiaPortal() {
+  if (isTransitioning || currentAct === 'campus') return;
+  isTransitioning = true;
+  audio.playPortalTransform();
+  portalFlash.classList.add('active');
+
+  setTimeout(() => {
+    currentAct = 'campus';
+    world.forestGroup.visible = false;
+    moose.root.visible = false;
+    campus.campusGroup.visible = true;
+
+    // Transform outfits: Damonie -> White Coat + Suit + Stethoscope; Brandon -> Sharp Suit!
+    damonie.setOutfit('ceremony');
+    brandon.setOutfit('ceremony');
+
+    // Place side-by-side on the EVMS Brickell brick plaza facing the grand rotunda!
+    leader.root.position.set(-0.65, 0.1, 15.5);
+    companion.root.position.set(0.65, 0.1, 15.6);
+    leader.heading = Math.PI;
+    companion.heading = Math.PI;
+    leader.root.rotation.y = Math.PI;
+    companion.root.rotation.y = Math.PI;
+    leader.velocity.set(0, 0, 0);
+    companion.velocity.set(0, 0, 0);
+
+    // Frame the iconic Brickell Medical Sciences building & "MD CLASS OF 2031" banner in Golden Hour!
+    camYaw = 0;
+    camPitch = 0.24;
+    camDist = 8.4;
+
+    // Locked to warm Golden Hour for the EVMS White Coat Ceremony!
+    applySceneTheme('campus');
+
+    // Celebratory sparkles on arrival!
+    for (let i = 0; i < 16; i++) {
+      spawnHeart(
+        new THREE.Vector3((Math.random() - 0.5) * 3.5, 1.4 + Math.random() * 1.5, 15.5 + (Math.random() - 0.5) * 2),
+        1.1,
+        i % 2 === 0
+      );
+    }
+
+    setTimeout(() => {
+      portalFlash.classList.remove('active');
+      isTransitioning = false;
+      showToast('✨ Welcome to Eastern Virginia Medical School — White Coat Ceremony!', 4.5);
+      showSpeech(
+        brandon,
+        'Whoa... look at you in that white coat, Doc!! 🩺✨',
+        4.5
+      );
+    }, 550);
+  }, 650);
+}
+
+function returnToForest() {
+  if (isTransitioning || currentAct === 'forest') return;
+  finaleOverlay.classList.add('hidden');
+  isTransitioning = true;
+  audio.playPortalTransform();
+  portalFlash.classList.add('active');
+
+  setTimeout(() => {
+    currentAct = 'forest';
+    finaleShown = false;
+    campus.campusGroup.visible = false;
+    world.forestGroup.visible = true;
+    moose.root.visible = true;
+
+    damonie.setOutfit('wilderness');
+    brandon.setOutfit('wilderness');
+
+    leader.root.position.set(0.7, getTerrainHeight(0.7, 9.5), 9.5);
+    companion.root.position.set(2.0, getTerrainHeight(2.0, 9.7), 9.7);
+    leader.heading = Math.PI;
+    companion.heading = Math.PI;
+    camYaw = 0;
+    camPitch = 0.28;
+    camDist = 8.6;
+
+    applySceneTheme('forest');
+
+    setTimeout(() => {
+      portalFlash.classList.remove('active');
+      isTransitioning = false;
+      showToast('🌲 Returned to Shenandoah — Golden Glade!');
+    }, 450);
+  }, 550);
+}
+
+function triggerCeremonyFinale() {
+  if (finaleShown) return;
+  finaleShown = true;
+  audio.playCeremonyFanfare();
+
+  for (let i = 0; i < 24; i++) {
+    spawnHeart(
+      new THREE.Vector3(
+        (Math.random() - 0.5) * 5.5,
+        1.2 + Math.random() * 2.8,
+        campus.entrancePos.z + (Math.random() - 0.5) * 3.0
+      ),
+      1.3,
+      i % 2 === 0
+    );
+  }
+
+  setTimeout(() => {
+    finaleOverlay.classList.remove('hidden');
+  }, 600);
+}
+
+// === INPUT & CAMERA CONTROLS (Mac Trackpad + Mouse + Keyboard) ===
+const keys = {};
+let gameStarted = false;
+let camYaw = 0;
+let camPitch = 0.28;
+let camDist = 8.6;
+let isDragging = false;
+let lastMouseX = 0;
+let lastMouseY = 0;
+
+window.addEventListener('keydown', (e) => {
+  keys[e.code] = true;
+  if (!gameStarted) return;
+
+  if (e.code === 'KeyE' || e.code === 'Space') {
+    e.preventDefault();
+    handlePrimaryAction();
+  } else if (e.code === 'KeyF') {
+    handleFeedMoose();
+  } else if (e.code === 'KeyH') {
+    triggerCozyMoment();
+  } else if (e.code === 'Tab') {
+    e.preventDefault();
+    switchCharacter();
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  keys[e.code] = false;
+});
+
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  isDragging = true;
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+});
+
+window.addEventListener('pointermove', (e) => {
+  if (!isDragging) return;
+  const dx = e.clientX - lastMouseX;
+  const dy = e.clientY - lastMouseY;
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+  camYaw -= dx * 0.0065;
+  camPitch = THREE.MathUtils.clamp(camPitch + dy * 0.0055, 0.08, 1.15);
+});
+
+window.addEventListener('pointerup', () => {
+  isDragging = false;
+});
+
+// Mac Trackpad: Two-finger swipe smoothly orbits 360°; pinch-to-zoom (ctrlKey) zooms in/out!
+window.addEventListener(
+  'wheel',
+  (e) => {
+    if (!gameStarted) return;
+    e.preventDefault();
+    if (e.ctrlKey) {
+      // macOS trackpad pinch-to-zoom
+      camDist = THREE.MathUtils.clamp(camDist + e.deltaY * 0.035, 3.6, 16.0);
+    } else {
+      // macOS two-finger swipe to look around freely in 360°!
+      camYaw -= e.deltaX * 0.0045;
+      camPitch = THREE.MathUtils.clamp(camPitch + e.deltaY * 0.0032, 0.08, 1.15);
+    }
+  },
+  { passive: false }
+);
+
+// === GAME ACTIONS ===
+function switchCharacter() {
+  const prev = leader;
+  leader = companion;
+  companion = prev;
+
+  document.getElementById('active-char-name').textContent = leader.name;
+  const dot = document.getElementById('char-dot');
+  dot.className = `chip-dot ${leader.name === 'Brandon' ? 'active-brandon' : 'active-damonie'}`;
+  showToast(`Now walking as ${leader.name}`);
+}
+
+const cozyQuotes = [
+  'Best walk ever ♥',
+  'Glad we’re doing this together',
+  'Always right beside you ✨',
+  'Look how gorgeous it is out here',
+];
+
+function triggerCozyMoment() {
+  leader.cozyAnim = 2.2;
+  companion.cozyAnim = 2.2;
+  audio.playCozyChord();
+  const quote = cozyQuotes[Math.floor(Math.random() * cozyQuotes.length)];
+  showSpeech(companion, quote, 2.8);
+}
+
+const forageReactions = [
+  'Ooh nice find!',
+  'Save some for the big moose!',
+  'Those look fresh!',
+  'We’re eating good tonight ✨',
+  'Whoa, good eye!',
+];
+
+let nearestContext = null;
+
+function handlePrimaryAction() {
+  if (!nearestContext) return;
+  if (nearestContext.kind === 'forage') {
+    const f = nearestContext.item;
+    f.collected = true;
+    f.group.visible = false;
+    inventory[f.type]++;
+    totalForaged++;
+    leader.forageAnim = 0.55;
+    audio.playForage(f.type === 'truffle');
+
+    for (let i = 0; i < 6; i++) {
+      spawnHeart(f.position.clone().add(new THREE.Vector3(0, 0.45, 0)), 0.85, true);
+    }
+    updateHUD();
+    showToast(`Foraged ${f.label}!`);
+    if (Math.random() < 0.72) {
+      showSpeech(companion, forageReactions[Math.floor(Math.random() * forageReactions.length)], 2.6);
+    }
+  } else if (nearestContext.kind === 'portal') {
+    enterVirginiaPortal();
+  } else if (nearestContext.kind === 'returnPortal') {
+    returnToForest();
+  } else if (nearestContext.kind === 'entrance') {
+    triggerCeremonyFinale();
+  } else if (nearestContext.kind === 'moose') {
+    handleFeedMoose();
+  }
+}
+
+function handleFeedMoose() {
+  if (currentAct !== 'forest') return;
+  const dist = leader.root.position.distanceTo(moose.root.position);
+  if (dist > 4.6) {
+    showToast('Walk closer to the Big Fat Moose to feed it!');
+    return;
+  }
+  const snack = consumeOneSnack();
+  if (!snack) {
+    showToast('Forage some berries, apples, or mushrooms first!');
+    showSpeech(companion, 'Let’s grab him some berries or apples first!', 2.8);
+    return;
+  }
+  leader.forageAnim = 0.55;
+  const fed = moose.feed(spawnHeart, audio);
+  updateHUD();
+  if (fed >= moose.maxFed) {
+    showToast('🫎 The Big Fat Moose is ecstatic! Best Forest Buddy!');
+    showSpeech(companion, 'Look at his big belly wobble!! 😂♥', 3.4);
+  } else {
+    showToast(`Fed the Big Fat Moose a forest ${snack}! (${fed}/${moose.maxFed})`);
+    showSpeech(companion, 'Haha he LOVES those snacks!', 2.6);
+  }
+}
+
+// === UI BUTTON WIRING ===
+document.getElementById('start-btn').addEventListener('click', () => {
+  audio.init();
+  gameStarted = true;
+  document.getElementById('intro-overlay').classList.add('hidden');
+  document.getElementById('hud').classList.remove('hidden');
+  setTimeout(() => {
+    showSpeech(damonie, 'Look at that giant moose!! 🫎✨', 4.2);
+  }, 1000);
+});
+
+document.getElementById('btn-switch-char').addEventListener('click', switchCharacter);
+document.getElementById('btn-sound').addEventListener('click', () => {
+  audio.setEnabled(!audio.enabled);
+  document.getElementById('sound-icon').textContent = audio.enabled ? '🔊' : '🔇';
+});
+document.getElementById('btn-help').addEventListener('click', () => {
+  document.getElementById('help-panel').classList.toggle('hidden');
+});
+document.getElementById('action-prompt').addEventListener('click', handlePrimaryAction);
+
+document.getElementById('btn-keep-exploring').addEventListener('click', () => {
+  finaleOverlay.classList.add('hidden');
+});
+document.getElementById('btn-return-forest').addEventListener('click', returnToForest);
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// === MAIN ANIMATION LOOP ===
+const clock = new THREE.Clock();
+const camLookTarget = new THREE.Vector3(1.2, 1.4, 8.5);
+const desiredCamPos = new THREE.Vector3();
+const promptEl = document.getElementById('action-prompt');
+const promptKeyEl = document.getElementById('prompt-key');
+const promptTextEl = document.getElementById('prompt-text');
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const elapsed = clock.getElapsedTime();
+
+  audio.update(dt);
+  world.update(elapsed);
+  if (currentAct === 'campus') campus.update(elapsed, dt);
+
+  // Ambient floating pollen / fireflies
+  const posAttr = pGeo.attributes.position;
+  for (let i = 0; i < particleCount; i++) {
+    const ph = pPhases[i];
+    posAttr.array[i * 3 + 1] += Math.sin(elapsed * 0.9 + ph) * 0.004;
+    posAttr.array[i * 3] += Math.cos(elapsed * 0.5 + ph) * 0.003;
+  }
+  posAttr.needsUpdate = true;
+
+  // Update floating hearts & sparkles
+  for (let i = activeSprites.length - 1; i >= 0; i--) {
+    const s = activeSprites[i];
+    s.life -= dt;
+    if (s.life <= 0) {
+      scene.remove(s.sprite);
+      s.sprite.material.dispose();
+      activeSprites.splice(i, 1);
+      continue;
+    }
+    s.sprite.position.y += s.vy * dt;
+    s.sprite.position.x += s.vx * dt;
+    s.sprite.position.z += s.vz * dt;
+    s.sprite.material.opacity = Math.min(1, s.life / 0.7);
+  }
+
+  // Toast timer
+  if (toastTimer > 0) {
+    toastTimer -= dt;
+    if (toastTimer <= 0) toastEl.classList.add('hidden');
+  }
+
+  // Keyboard camera orbit (Q/R) & zoom (-/=) for effortless laptop/Mac control
+  if (gameStarted && !isTransitioning) {
+    if (keys['KeyQ']) camYaw += 1.65 * dt;
+    if (keys['KeyR']) camYaw -= 1.65 * dt;
+    if (keys['Minus']) camDist = THREE.MathUtils.clamp(camDist + 6.5 * dt, 3.6, 16.0);
+    if (keys['Equal']) camDist = THREE.MathUtils.clamp(camDist - 6.5 * dt, 3.6, 16.0);
+  }
+
+  // Build movement vector from keyboard relative to camera yaw
+  const inputDir = new THREE.Vector3();
+  if (gameStarted && !isTransitioning && finaleOverlay.classList.contains('hidden')) {
+    let f = 0;
+    let r = 0;
+    if (keys['KeyW'] || keys['ArrowUp']) f += 1;
+    if (keys['KeyS'] || keys['ArrowDown']) f -= 1;
+    if (keys['KeyD'] || keys['ArrowRight']) r += 1;
+    if (keys['KeyA'] || keys['ArrowLeft']) r -= 1;
+
+    if (f !== 0 || r !== 0) {
+      const fwdX = -Math.sin(camYaw);
+      const fwdZ = -Math.cos(camYaw);
+      const rightX = Math.cos(camYaw);
+      const rightZ = -Math.sin(camYaw);
+      inputDir.set(fwdX * f + rightX * r, 0, fwdZ * f + rightZ * r).normalize();
+    }
+  }
+
+  const isRunning = !!(keys['ShiftLeft'] || keys['ShiftRight']);
+
+  // Update Brandon & Damonie
+  updateCharacters({
+    leader,
+    companion,
+    inputDir,
+    isRunning,
+    obstacles: currentAct === 'forest' ? world.obstacles : campus.obstacles,
+    moosePos: currentAct === 'forest' ? moose.root.position : null,
+    getHeightFn: currentAct === 'forest' ? getTerrainHeight : campus.getHeight,
+    boundsConfig: { type: currentAct },
+    dt,
+    elapsed,
+    audio,
+    spawnHeart,
+  });
+
+  // Update the Big Fat Moose in Act 1
+  if (currentAct === 'forest') {
+    moose.update(
+      dt,
+      elapsed,
+      leader.root.position,
+      getTotalSnacksInBasket() > 0,
+      world.obstacles,
+      audio,
+      spawnHeart
+    );
+  }
+
+  // Contextual Proximity Checks (Forage, Moose, Portal, EVMS Entrance)
+  nearestContext = null;
+  if (gameStarted && !isTransitioning) {
+    if (currentAct === 'forest') {
+      // 1. Check VIRGINIA medieval portal proximity (auto-enter if stepping right into vortex!)
+      const dPortal = leader.root.position.distanceTo(world.portalPos);
+      if (dPortal < 1.85) {
+        enterVirginiaPortal();
+      } else if (dPortal < 4.5) {
+        nearestContext = { kind: 'portal', key: 'E', text: 'Step through the VIRGINIA Portal' };
+      }
+
+      // 2. Check nearby forageables
+      if (!nearestContext) {
+        let bestDist = 2.6;
+        for (const f of world.forageables) {
+          if (f.collected) continue;
+          const dist = leader.root.position.distanceTo(f.position);
+          if (dist < bestDist) {
+            bestDist = dist;
+            nearestContext = { kind: 'forage', item: f, key: 'E', text: `Forage ${f.label}` };
+          }
+        }
+      }
+
+      // 3. Check Big Fat Moose feeding proximity
+      if (!nearestContext) {
+        const dMoose = leader.root.position.distanceTo(moose.root.position);
+        if (dMoose < 4.3) {
+          nearestContext = {
+            kind: 'moose',
+            key: 'F',
+            text: getTotalSnacksInBasket() > 0 ? 'Feed the Big Fat Moose!' : 'Forage snacks to feed the Moose',
+          };
+        }
+      }
+    } else if (currentAct === 'campus') {
+      const dReturn = leader.root.position.distanceTo(campus.returnPortalPos);
+      if (dReturn < 1.9) {
+        returnToForest();
+      } else if (dReturn < 4.6) {
+        nearestContext = {
+          kind: 'returnPortal',
+          key: 'E',
+          text: 'Step through the SHENANDOAH Portal (Back to Forest)',
+        };
+      }
+
+      if (!nearestContext) {
+        const dDoor = leader.root.position.distanceTo(campus.entrancePos);
+        if (dDoor < 2.2 && !finaleShown) {
+          triggerCeremonyFinale();
+        } else if (dDoor < 5.5) {
+          nearestContext = {
+            kind: 'entrance',
+            key: 'E',
+            text: 'Enter EVMS — MD Class of 2031 White Coat Ceremony',
+          };
+        }
+      }
+    }
+  }
+
+  if (nearestContext) {
+    promptKeyEl.textContent = nearestContext.key;
+    promptTextEl.textContent = nearestContext.text;
+    promptEl.classList.remove('hidden');
+  } else {
+    promptEl.classList.add('hidden');
+  }
+
+  // Smooth Third-Person Camera
+  if (!gameStarted) {
+    // Cinematic slow intro orbit showcasing the sunlit glade, Brandon & Damonie, and the Big Fat Moose!
+    const introAngle = elapsed * 0.14;
+    camera.position.set(
+      1.2 + Math.sin(introAngle) * 11.5,
+      4.6 + Math.sin(elapsed * 0.35) * 0.4,
+      6.5 + Math.cos(introAngle) * 11.5
+    );
+    camera.lookAt(0.5, 1.5, 2.5);
+  } else {
+    const midX = THREE.MathUtils.lerp(leader.root.position.x, companion.root.position.x, 0.35);
+    const midY = THREE.MathUtils.lerp(leader.root.position.y, companion.root.position.y, 0.35) + 1.45;
+    const midZ = THREE.MathUtils.lerp(leader.root.position.z, companion.root.position.z, 0.35);
+
+    camLookTarget.lerp(new THREE.Vector3(midX, midY, midZ), Math.min(1, dt * 7));
+
+    desiredCamPos.set(
+      camLookTarget.x + Math.sin(camYaw) * Math.cos(camPitch) * camDist,
+      camLookTarget.y + Math.sin(camPitch) * camDist,
+      camLookTarget.z + Math.cos(camYaw) * Math.cos(camPitch) * camDist
+    );
+
+    const groundAtCam = currentAct === 'forest'
+      ? getTerrainHeight(desiredCamPos.x, desiredCamPos.z) + 0.9
+      : 0.9;
+    desiredCamPos.y = Math.max(desiredCamPos.y, groundAtCam);
+
+    camera.position.lerp(desiredCamPos, Math.min(1, dt * 8));
+    camera.lookAt(camLookTarget);
+  }
+
+  // Update 3D-projected Speech Bubble position
+  if (activeSpeech) {
+    activeSpeech.timer -= dt;
+    if (activeSpeech.timer <= 0) {
+      activeSpeech.el.remove();
+      activeSpeech = null;
+    } else {
+      const headPos = activeSpeech.character.root.position.clone().add(new THREE.Vector3(0, 2.25, 0));
+      headPos.project(camera);
+      const sx = (headPos.x * 0.5 + 0.5) * window.innerWidth;
+      const sy = (-headPos.y * 0.5 + 0.5) * window.innerHeight;
+      activeSpeech.el.style.left = `${sx}px`;
+      activeSpeech.el.style.top = `${sy}px`;
+      activeSpeech.el.style.opacity = activeSpeech.timer < 0.4 ? activeSpeech.timer / 0.4 : 1;
+    }
+  }
+
+  composer.render();
+}
+
+updateHUD();
+animate();
+
+</script>
+</body>
+</html>
