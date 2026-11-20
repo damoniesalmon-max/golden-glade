@@ -414,15 +414,28 @@ kbd {
 .speech-bubble {
   position: absolute;
   transform: translate(-50%, -100%);
-  padding: 7px 14px;
+  max-width: 290px;
+  padding: 9px 15px;
   border-radius: 16px;
-  background: rgba(255, 250, 240, 0.92);
+  background: rgba(255, 250, 240, 0.94);
   color: #1f2820;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
-  white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  transition: opacity 0.35s ease;
+  line-height: 1.4;
+  text-align: center;
+  white-space: normal;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+  transition: opacity 0.4s ease;
+}
+
+.speech-speaker {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a6434;
+  margin-bottom: 2px;
 }
 
 .speech-bubble::after {
@@ -533,14 +546,13 @@ kbd {
   <!-- White Coat Ceremony Finale Overlay -->
   <div id="finale-overlay" class="overlay hidden">
     <div class="intro-card finale-card">
-      <div class="intro-badge">Eastern Virginia Medical School</div>
-      <h1>MD Class of 2031</h1>
+      <div class="intro-badge">Eastern Virginia Medical School • MD Class of 2031</div>
+      <h1>Congratulations!</h1>
       <p class="intro-subtitle">
-        From wandering wild forest trails together to stepping into the
-        <strong>Brickell Medical Sciences Building</strong> in your white coat &amp; stethoscope —
-        with <strong>Brandon</strong> right by your side.
+        Welcome to celebrating future<br />
+        <strong>Dr. Damonie Salmon, MD, MBA</strong>
         <br /><br />
-        <em>Here’s to what’s next, future Dr. Damonie.</em> 🩺✨
+        <em>Thank you for being on this journey with me.</em> 🩺💛
       </p>
       <div class="finale-actions">
         <button id="btn-keep-exploring" class="primary-btn">Keep Exploring Campus</button>
@@ -555,7 +567,7 @@ kbd {
       <div class="intro-badge">A Playable Story Walk</div>
       <h1>Golden Glade</h1>
       <p class="intro-subtitle">
-        Stroll through a golden-hour woodland with <strong>Brandon</strong> &amp; <strong>Damonie</strong>,
+        Walk through a misty woodland with <strong>Damonie</strong> by your side,
         forage wild treats, befriend one very big fat moose, and see where the forest trail leads.
       </p>
       <div class="intro-keys">
@@ -565,7 +577,6 @@ kbd {
         <span><kbd>E</kbd> Forage</span>
         <span><kbd>F</kbd> Feed Moose</span>
         <span><kbd>H</kbd> Pull Close</span>
-        <span><kbd>Tab</kbd> Switch Lead</span>
       </div>
       <button id="start-btn" class="primary-btn">Enter the Forest</button>
     </div>
@@ -620,10 +631,6 @@ kbd {
 
     <!-- Top Right: Controls & Toggles -->
     <div class="hud-top-right">
-      <button id="btn-switch-char" class="hud-chip" title="Switch Character (Tab)">
-        <span class="chip-dot active-brandon" id="char-dot"></span>
-        <span>Leading: <strong id="active-char-name">Brandon</strong></span>
-      </button>
       <button id="btn-sound" class="hud-chip" title="Toggle Sound">
         <span id="sound-icon">🔊</span>
       </button>
@@ -635,6 +642,7 @@ kbd {
     <!-- Controls Cheat Sheet -->
     <div id="help-panel" class="hud-panel help-panel hidden">
       <div class="panel-title" style="margin-bottom: 8px;">Controls</div>
+      <div class="help-row"><kbd>Click / Tap</kbd> <span>Walk anywhere</span></div>
       <div class="help-row"><kbd>W A S D</kbd> / <kbd>Arrows</kbd> <span>Walk around</span></div>
       <div class="help-row"><kbd>Shift</kbd> <span>Jog</span></div>
       <div class="help-row"><kbd>2-Finger Swipe</kbd> / <kbd>Drag</kbd> <span>Look around 360°</span></div>
@@ -643,7 +651,6 @@ kbd {
       <div class="help-row"><kbd>E</kbd> / <kbd>Space</kbd> <span>Forage / Enter Portal</span></div>
       <div class="help-row"><kbd>F</kbd> <span>Feed the Big Fat Moose</span></div>
       <div class="help-row"><kbd>H</kbd> <span>Gravitate / Cozy Moment</span></div>
-      <div class="help-row"><kbd>Tab</kbd> <span>Switch Brandon &harr; Damonie</span></div>
     </div>
 
     <!-- Speech Bubble Container (projected from 3D) -->
@@ -4385,17 +4392,72 @@ function spawnHeart(worldPos, scale = 1.0, isGoldSparkle = false) {
 // === SPEECH BUBBLES (3D -> 2D SCREEN PROJECTION) ===
 const speechLayer = document.getElementById('speech-layer');
 let activeSpeech = null;
+let pendingFollowupTimer = null;
 
-function showSpeech(character, text, duration = 3.2) {
+function showSpeech(character, text, duration = 4.2) {
   if (activeSpeech) {
     activeSpeech.el.remove();
     activeSpeech = null;
   }
   const el = document.createElement('div');
   el.className = 'speech-bubble';
-  el.textContent = text;
+  const nameTag = document.createElement('span');
+  nameTag.className = 'speech-speaker';
+  nameTag.textContent = character.name;
+  el.appendChild(nameTag);
+  el.appendChild(document.createTextNode(text));
   speechLayer.appendChild(el);
   activeSpeech = { character, el, timer: duration };
+}
+
+// === HEARTFELT FOREST STORY CONVERSATION (PACED AS BRANDON EXPLORES & CLICKS) ===
+const STORY_BEATS = [
+  { who: 'brandon', text: "I'm really sorry I hurt you, Damonie.", duration: 4.5 },
+  { who: 'damonie', text: "I'm sorry I was a monster to you.", duration: 4.5 },
+  { who: 'damonie', text: 'I will never be that person to you again.', duration: 4.6 },
+  { who: 'brandon', text: 'How do you know?', duration: 3.8 },
+  {
+    who: 'damonie',
+    text: 'I never want to lose you again...',
+    duration: 3.6,
+    pauseMs: 5600, // 3.6s display + quiet 2.0s emotional pause
+    followup: { who: 'damonie', text: '...I never want to lose me again.', duration: 4.8 },
+  },
+  {
+    who: 'damonie',
+    text: 'And I would love for us to go on this next chapter together.',
+    duration: 5.5,
+  },
+];
+
+let storyIdx = 0;
+let storyCooldown = 5.2; // Wait gently after Brandon's opening "Oh, a fat moose!"
+let storyLockedForPause = false;
+
+function tryAdvanceStoryBeat() {
+  if (currentAct !== 'forest' || !gameStarted || isTransitioning) return;
+  if (storyIdx >= STORY_BEATS.length || storyCooldown > 0 || storyLockedForPause || activeSpeech) return;
+
+  const beat = STORY_BEATS[storyIdx];
+  storyIdx++;
+  const speaker = beat.who === 'brandon' ? brandon : damonie;
+  showSpeech(speaker, beat.text, beat.duration);
+
+  if (beat.followup) {
+    storyLockedForPause = true;
+    storyCooldown = 11.5;
+    if (pendingFollowupTimer) clearTimeout(pendingFollowupTimer);
+    pendingFollowupTimer = setTimeout(() => {
+      if (currentAct === 'forest') {
+        const fSpeaker = beat.followup.who === 'brandon' ? brandon : damonie;
+        showSpeech(fSpeaker, beat.followup.text, beat.followup.duration);
+      }
+      storyLockedForPause = false;
+      storyCooldown = 5.8;
+    }, beat.pauseMs);
+  } else {
+    storyCooldown = beat.duration + 1.4;
+  }
 }
 
 // === TOAST NOTIFICATIONS ===
@@ -4503,8 +4565,8 @@ function enterVirginiaPortal() {
       showToast('✨ Welcome to Eastern Virginia Medical School — White Coat Ceremony!', 4.5);
       showSpeech(
         brandon,
-        'Whoa... look at you in that white coat, Doc!! 🩺✨',
-        4.5
+        'Nice lab coat — you look really good, Doc! 🩺✨',
+        4.8
       );
     }, 550);
   }, 650);
@@ -4616,6 +4678,7 @@ function handleTapWalk(clientX, clientY) {
     clickRipple.position.set(hit.x, groundY + 0.08, hit.z);
     clickRipple.scale.set(0.6, 0.6, 1);
     rippleLife = 0.75;
+    tryAdvanceStoryBeat();
   }
 }
 
@@ -4630,9 +4693,6 @@ window.addEventListener('keydown', (e) => {
     handleFeedMoose();
   } else if (e.code === 'KeyH') {
     triggerCozyMoment();
-  } else if (e.code === 'Tab') {
-    e.preventDefault();
-    switchCharacter();
   }
 });
 
@@ -4688,39 +4748,11 @@ window.addEventListener(
 );
 
 // === GAME ACTIONS ===
-function switchCharacter() {
-  const prev = leader;
-  leader = companion;
-  companion = prev;
-
-  document.getElementById('active-char-name').textContent = leader.name;
-  const dot = document.getElementById('char-dot');
-  dot.className = `chip-dot ${leader.name === 'Brandon' ? 'active-brandon' : 'active-damonie'}`;
-  showToast(`Now walking as ${leader.name}`);
-}
-
-const cozyQuotes = [
-  'Best walk ever ♥',
-  'Glad we’re doing this together',
-  'Always right beside you ✨',
-  'Look how gorgeous it is out here',
-];
-
 function triggerCozyMoment() {
   leader.cozyAnim = 2.2;
   companion.cozyAnim = 2.2;
   audio.playCozyChord();
-  const quote = cozyQuotes[Math.floor(Math.random() * cozyQuotes.length)];
-  showSpeech(companion, quote, 2.8);
 }
-
-const forageReactions = [
-  'Ooh nice find!',
-  'Save some for the big moose!',
-  'Those look fresh!',
-  'We’re eating good tonight ✨',
-  'Whoa, good eye!',
-];
 
 let nearestContext = null;
 
@@ -4740,9 +4772,7 @@ function handlePrimaryAction() {
     }
     updateHUD();
     showToast(`Foraged ${f.label}!`);
-    if (Math.random() < 0.72) {
-      showSpeech(companion, forageReactions[Math.floor(Math.random() * forageReactions.length)], 2.6);
-    }
+    tryAdvanceStoryBeat();
   } else if (nearestContext.kind === 'portal') {
     enterVirginiaPortal();
   } else if (nearestContext.kind === 'returnPortal') {
@@ -4764,7 +4794,6 @@ function handleFeedMoose() {
   const snack = consumeOneSnack();
   if (!snack) {
     showToast('Forage some berries, apples, or mushrooms first!');
-    showSpeech(companion, 'Let’s grab him some berries or apples first!', 2.8);
     return;
   }
   leader.forageAnim = 0.55;
@@ -4772,10 +4801,8 @@ function handleFeedMoose() {
   updateHUD();
   if (fed >= moose.maxFed) {
     showToast('🫎 The Big Fat Moose is ecstatic! Best Forest Buddy!');
-    showSpeech(companion, 'Look at his big belly wobble!! 😂♥', 3.4);
   } else {
     showToast(`Fed the Big Fat Moose a forest ${snack}! (${fed}/${moose.maxFed})`);
-    showSpeech(companion, 'Haha he LOVES those snacks!', 2.6);
   }
 }
 
@@ -4786,11 +4813,10 @@ document.getElementById('start-btn').addEventListener('click', () => {
   document.getElementById('intro-overlay').classList.add('hidden');
   document.getElementById('hud').classList.remove('hidden');
   setTimeout(() => {
-    showSpeech(damonie, 'Look at that giant moose!! 🫎✨', 4.2);
-  }, 1000);
+    showSpeech(brandon, 'Oh, a fat moose!', 4.0);
+  }, 1100);
 });
 
-document.getElementById('btn-switch-char').addEventListener('click', switchCharacter);
 document.getElementById('btn-sound').addEventListener('click', () => {
   audio.setEnabled(!audio.enabled);
   document.getElementById('sound-icon').textContent = audio.enabled ? '🔊' : '🔇';
@@ -4854,10 +4880,13 @@ function animate() {
     s.sprite.material.opacity = Math.min(1, s.life / 0.7);
   }
 
-  // Toast timer
+  // Toast timer & heartfelt forest conversation pacing
   if (toastTimer > 0) {
     toastTimer -= dt;
     if (toastTimer <= 0) toastEl.classList.add('hidden');
+  }
+  if (gameStarted && currentAct === 'forest' && storyCooldown > 0 && !storyLockedForPause) {
+    storyCooldown = Math.max(0, storyCooldown - dt);
   }
 
   // Click/tap golden ground ripple animation
@@ -4891,6 +4920,7 @@ function animate() {
 
     if (f !== 0 || r !== 0) {
       walkTarget = null; // Manual keyboard overrides click destination
+      tryAdvanceStoryBeat();
       const fwdX = -Math.sin(camYaw);
       const fwdZ = -Math.cos(camYaw);
       const rightX = Math.cos(camYaw);
