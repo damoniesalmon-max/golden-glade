@@ -464,6 +464,38 @@ kbd {
   opacity: 1;
 }
 
+/* Subtle Cinematic Cutscene Letterbox Bars */
+.cutscene-bars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.cutscene-bars .bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: rgba(8, 10, 12, 0.92);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cutscene-bars .bar-top {
+  top: 0;
+  transform: translateY(-100%);
+}
+
+.cutscene-bars .bar-bottom {
+  bottom: 0;
+  transform: translateY(100%);
+}
+
+.cutscene-bars.active .bar-top,
+.cutscene-bars.active .bar-bottom {
+  transform: translateY(0);
+}
+
 .finale-card {
   max-width: 580px;
   border-color: rgba(244, 190, 94, 0.48);
@@ -542,6 +574,12 @@ kbd {
 
   <!-- Portal Flash Transition Overlay -->
   <div id="portal-flash" class="portal-flash"></div>
+
+  <!-- Subtle Cinematic Cutscene Letterbox Bars -->
+  <div id="cutscene-bars" class="cutscene-bars">
+    <div class="bar bar-top"></div>
+    <div class="bar bar-bottom"></div>
+  </div>
 
   <!-- White Coat Ceremony Finale Overlay -->
   <div id="finale-overlay" class="overlay hidden">
@@ -2736,153 +2774,274 @@ function createEVMSCampus(rootScene) {
   campusGroup.add(fountainGroup);
   obstacles.push({ x: fountainPos.x, z: fountainPos.z, radius: 2.7 });
 
-  // 4b. SLEEK BABY BLUE PORSCHE 911 PARKED NEAR THE FOUNTAIN!
+  // 4b. MODERN 992-GEN BABY BLUE PORSCHE 911 CABRIOLET (DROP-TOP CONVERTIBLE, TOP DOWN!)
   const porschePos = new THREE.Vector3(7.6, 0.08, 2.6);
   const porscheGroup = new THREE.Group();
   porscheGroup.position.copy(porschePos);
-  porscheGroup.rotation.y = -0.72; // Angled hero pose facing the brick walkway!
+  porscheGroup.rotation.y = -0.72; // Hero 3/4 angle facing Brandon & Damonie on the walkway!
 
   const babyBlueMat = new THREE.MeshPhysicalMaterial({
-    color: '#82cdf7',
-    metalness: 0.35,
-    roughness: 0.16,
+    color: '#89d2fa', // Modern Porsche Meissen / Gulf Baby Blue
+    metalness: 0.32,
+    roughness: 0.14,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.08,
+    clearcoatRoughness: 0.06,
   });
-  const cabinGlassMat = new THREE.MeshPhysicalMaterial({
-    color: '#172230',
-    metalness: 0.35,
-    roughness: 0.08,
-    clearcoat: 0.9,
+  const glassMat = new THREE.MeshPhysicalMaterial({
+    color: '#182636',
+    metalness: 0.25,
+    roughness: 0.06,
+    transparent: true,
+    opacity: 0.62,
+    clearcoat: 1.0,
   });
-  const tireMat = new THREE.MeshStandardMaterial({ color: '#17191c', roughness: 0.85 });
-  const rimMat = new THREE.MeshStandardMaterial({ color: '#e2e7ee', metalness: 0.88, roughness: 0.2 });
-  const caliperMat = new THREE.MeshStandardMaterial({ color: '#e5b83b', metalness: 0.5, roughness: 0.3 });
-  const headlightMat = new THREE.MeshStandardMaterial({
+  const leatherTanMat = new THREE.MeshStandardMaterial({ color: '#b57b4c', roughness: 0.62 });
+  const interiorDarkMat = new THREE.MeshStandardMaterial({ color: '#1b1d22', roughness: 0.72 });
+  const trimGlossBlack = new THREE.MeshStandardMaterial({ color: '#111317', roughness: 0.28, metalness: 0.35 });
+  const tireMat = new THREE.MeshStandardMaterial({ color: '#15171a', roughness: 0.88 });
+  const rimMat = new THREE.MeshStandardMaterial({ color: '#e4e9f0', metalness: 0.9, roughness: 0.18 });
+  const caliperMat = new THREE.MeshStandardMaterial({ color: '#f2c429', metalness: 0.45, roughness: 0.28 });
+  const ledWhiteMat = new THREE.MeshStandardMaterial({
     color: '#ffffff',
-    emissive: '#fff4d6',
-    emissiveIntensity: 2.2,
-    roughness: 0.1,
+    emissive: '#ffffff',
+    emissiveIntensity: 3.2,
   });
   const taillightMat = new THREE.MeshStandardMaterial({
-    color: '#ff2b2b',
-    emissive: '#ff1e1e',
-    emissiveIntensity: 2.0,
-    roughness: 0.15,
-  });
-  const trimBlackMat = new THREE.MeshStandardMaterial({ color: '#1b1d22', roughness: 0.65 });
-
-  // Lower sculpted 911 sports-car chassis
-  const lowerBody = new THREE.Mesh(new THREE.BoxGeometry(1.94, 0.52, 4.35), babyBlueMat);
-  lowerBody.position.set(0, 0.56, 0);
-  lowerBody.castShadow = true;
-  lowerBody.receiveShadow = true;
-  porscheGroup.add(lowerBody);
-
-  // Sloped front 911 nose / hood
-  const frontHood = new THREE.Mesh(new THREE.BoxGeometry(1.86, 0.28, 1.55), babyBlueMat);
-  frontHood.position.set(0, 0.72, 1.38);
-  frontHood.rotation.x = 0.17;
-  frontHood.castShadow = true;
-  porscheGroup.add(frontHood);
-
-  // Iconic wide flared rear Porsche 911 hips/haunches!
-  [-0.86, 0.86].forEach((hx) => {
-    const hip = new THREE.Mesh(new THREE.SphereGeometry(0.46, 14, 12), babyBlueMat);
-    hip.scale.set(0.62, 0.78, 2.15);
-    hip.position.set(hx, 0.72, -1.15);
-    hip.castShadow = true;
-    porscheGroup.add(hip);
+    color: '#ff2222',
+    emissive: '#ff1515',
+    emissiveIntensity: 2.6,
+    roughness: 0.12,
   });
 
-  // Signature curved fastback teardrop 911 cabin & roofline
-  const cabinRoof = new THREE.Mesh(new THREE.SphereGeometry(0.96, 20, 14), babyBlueMat);
-  cabinRoof.scale.set(0.86, 0.56, 1.72);
-  cabinRoof.position.set(0, 0.96, -0.22);
-  cabinRoof.castShadow = true;
-  porscheGroup.add(cabinRoof);
+  // 1. Sculpted Curvy 992 Side-Profile Body (ExtrudeGeometry with generous smooth bevels!)
+  // Side profile in (z -> shapeX, y -> shapeY), then rotated so length runs along +Z (front) to -Z (rear)
+  const sideShape = new THREE.Shape();
+  sideShape.moveTo(-2.15, 0.26); // rear diffuser bottom
+  sideShape.lineTo(2.05, 0.24);  // front splitter bottom
+  sideShape.quadraticCurveTo(2.30, 0.30, 2.26, 0.52); // rounded 992 front bumper nose
+  sideShape.quadraticCurveTo(2.08, 0.72, 1.48, 0.82); // sloping iconic 911 hood curve
+  sideShape.lineTo(0.82, 0.88);  // windshield cowl base
+  sideShape.lineTo(0.72, 0.76);  // open drop-top cockpit beltline dip!
+  sideShape.lineTo(-0.78, 0.78); // rear of open cockpit
+  sideShape.quadraticCurveTo(-1.05, 0.94, -1.58, 0.92); // sweeping 992 Cabriolet tonneau & rear deck
+  sideShape.quadraticCurveTo(-2.18, 0.86, -2.26, 0.56); // rounded 992 rear haunch curve
+  sideShape.quadraticCurveTo(-2.26, 0.34, -2.15, 0.26);
 
-  // Tinted wrap-around windshield & side windows
-  const windshield = new THREE.Mesh(new THREE.SphereGeometry(0.93, 18, 12), cabinGlassMat);
-  windshield.scale.set(0.84, 0.48, 1.56);
-  windshield.position.set(0, 0.96, -0.14);
-  porscheGroup.add(windshield);
+  const bodyGeo = new THREE.ExtrudeGeometry(sideShape, {
+    depth: 1.56,
+    bevelEnabled: true,
+    bevelSegments: 8,
+    steps: 1,
+    bevelSize: 0.20,
+    bevelThickness: 0.24,
+  });
+  bodyGeo.translate(0, 0, -0.78);
+  bodyGeo.rotateY(-Math.PI / 2); // +Z is front, -Z is rear!
+  const mainBody = new THREE.Mesh(bodyGeo, babyBlueMat);
+  mainBody.castShadow = true;
+  mainBody.receiveShadow = true;
+  porscheGroup.add(mainBody);
 
-  // Front lower splitter & air intakes
-  const splitter = new THREE.Mesh(new THREE.BoxGeometry(1.88, 0.14, 0.35), trimBlackMat);
-  splitter.position.set(0, 0.34, 2.1);
-  porscheGroup.add(splitter);
+  // Muscular flared 992 rear haunches & front fender swells
+  [-0.88, 0.88].forEach((fx) => {
+    // Wide sculpted rear 911 hips
+    const rearHip = new THREE.Mesh(new THREE.SphereGeometry(0.48, 18, 14), babyBlueMat);
+    rearHip.scale.set(0.58, 0.76, 2.25);
+    rearHip.position.set(fx, 0.66, -1.20);
+    rearHip.castShadow = true;
+    porscheGroup.add(rearHip);
 
-  // Iconic round Porsche 911 front headlights!
-  [-0.72, 0.72].forEach((lx) => {
-    const pod = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), babyBlueMat);
-    pod.scale.set(0.9, 0.75, 1.5);
-    pod.position.set(lx, 0.77, 1.78);
-    porscheGroup.add(pod);
-
-    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 10), headlightMat);
-    lamp.scale.set(0.95, 0.95, 0.5);
-    lamp.position.set(lx, 0.78, 2.05);
-    lamp.rotation.x = -0.35;
-    porscheGroup.add(lamp);
+    // Rounded iconic front 911 fender arches (higher than the center frunk hood!)
+    const frontFender = new THREE.Mesh(new THREE.SphereGeometry(0.42, 18, 14), babyBlueMat);
+    frontFender.scale.set(0.62, 0.72, 1.85);
+    frontFender.position.set(fx * 0.93, 0.66, 1.38);
+    frontFender.castShadow = true;
+    porscheGroup.add(frontFender);
   });
 
-  // Iconic full-width glowing red Porsche 911 rear lightbar + subtle ducktail spoiler!
-  const lightBar = new THREE.Mesh(new THREE.BoxGeometry(1.76, 0.085, 0.08), taillightMat);
-  lightBar.position.set(0, 0.74, -2.18);
-  porscheGroup.add(lightBar);
+  // 2. MODERN 992 FOUR-POINT MATRIX LED HEADLIGHTS (oval housings + 4 glowing white LED points!)
+  [-0.72, 0.72].forEach((hx) => {
+    const hlGroup = new THREE.Group();
+    hlGroup.position.set(hx, 0.79, 1.82);
+    hlGroup.rotation.x = 0.52;
+    hlGroup.rotation.y = hx < 0 ? -0.18 : 0.18;
 
-  const spoiler = new THREE.Mesh(new THREE.BoxGeometry(1.56, 0.07, 0.34), babyBlueMat);
-  spoiler.position.set(0, 0.92, -1.96);
-  spoiler.rotation.x = 0.22;
-  porscheGroup.add(spoiler);
+    // Dark metallic inner housing
+    const bezel = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 0.08, 18), trimGlossBlack);
+    bezel.scale.set(0.92, 1, 1.32);
+    hlGroup.add(bezel);
 
-  // Rear diffuser & twin chrome exhaust tips
-  const diffuser = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.22, 0.16), trimBlackMat);
-  diffuser.position.set(0, 0.38, -2.15);
-  porscheGroup.add(diffuser);
-  [-0.42, 0.42].forEach((ex) => {
-    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.18, 10), rimMat);
-    pipe.rotation.x = Math.PI / 2;
-    pipe.position.set(ex, 0.37, -2.23);
-    porscheGroup.add(pipe);
+    // Clear curved glass lens cover
+    const lens = new THREE.Mesh(new THREE.SphereGeometry(0.165, 16, 12), glassMat);
+    lens.scale.set(0.92, 0.38, 1.32);
+    lens.position.y = 0.04;
+    hlGroup.add(lens);
+
+    // Central projector + Iconic 4-Point Porsche LED Daytime Running Lights!
+    const proj = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8), ledWhiteMat);
+    proj.position.set(0, 0.045, 0);
+    hlGroup.add(proj);
+
+    [[-0.075, -0.09], [0.075, -0.09], [-0.075, 0.09], [0.075, 0.09]].forEach(([dx, dz]) => {
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), ledWhiteMat);
+      dot.position.set(dx, 0.052, dz);
+      hlGroup.add(dot);
+    });
+
+    porscheGroup.add(hlGroup);
   });
 
-  // Side mirrors
-  [-1.02, 1.02].forEach((mx) => {
-    const mirror = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.14), babyBlueMat);
-    mirror.position.set(mx, 0.94, 0.55);
+  // Wide 992 Front Bumper Horizontal Gloss-Black Air Intakes & Slim LED Turn Strips
+  const frontIntake = new THREE.Mesh(new THREE.BoxGeometry(1.74, 0.22, 0.16), trimGlossBlack);
+  frontIntake.position.set(0, 0.36, 2.26);
+  porscheGroup.add(frontIntake);
+
+  [-0.68, 0.68].forEach((sx) => {
+    const drlBar = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.032, 0.05), ledWhiteMat);
+    drlBar.position.set(sx, 0.49, 2.31);
+    porscheGroup.add(drlBar);
+  });
+
+  // 3. OPEN DROP-TOP CONVERTIBLE COCKPIT (TOP DOWN!)
+  // Recessed dark interior tub
+  const cockpitTub = new THREE.Mesh(new THREE.BoxGeometry(1.48, 0.38, 1.48), interiorDarkMat);
+  cockpitTub.position.set(0, 0.72, -0.04);
+  porscheGroup.add(cockpitTub);
+
+  // Sleek raked frameless curved windshield + thin baby-blue A-pillars
+  const wsGroup = new THREE.Group();
+  wsGroup.position.set(0, 1.07, 0.64);
+  wsGroup.rotation.x = -0.96; // Sweeping 911 windshield rake!
+
+  const wsGlass = new THREE.Mesh(new THREE.BoxGeometry(1.44, 0.74, 0.04), glassMat);
+  wsGroup.add(wsGlass);
+
+  // Body-colored slim A-pillars & top windshield frame
+  [-0.73, 0.73].forEach((px) => {
+    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.042, 0.78, 8), babyBlueMat);
+    pillar.position.x = px;
+    wsGroup.add(pillar);
+  });
+  const topFrame = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.036, 1.50, 8), babyBlueMat);
+  topFrame.rotation.z = Math.PI / 2;
+  topFrame.position.y = 0.38;
+  wsGroup.add(topFrame);
+  porscheGroup.add(wsGroup);
+
+  // Luxury Cognac-Tan Leather Sport Bucket Seats + Headrests!
+  [-0.38, 0.38].forEach((sx) => {
+    const seatBase = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.14, 0.48), leatherTanMat);
+    seatBase.position.set(sx, 0.76, -0.10);
+    porscheGroup.add(seatBase);
+
+    const seatBack = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.56, 0.14), leatherTanMat);
+    seatBack.position.set(sx, 1.04, -0.34);
+    seatBack.rotation.x = -0.22;
+    seatBack.castShadow = true;
+    porscheGroup.add(seatBack);
+
+    const headrest = new THREE.Mesh(new THREE.CapsuleGeometry(0.11, 0.10, 6, 10), leatherTanMat);
+    headrest.position.set(sx, 1.34, -0.41);
+    headrest.scale.set(1.15, 0.9, 0.65);
+    porscheGroup.add(headrest);
+
+    // Brushed aluminum convertible roll hoop behind each seat!
+    const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.024, 8, 16, Math.PI), rimMat);
+    hoop.position.set(sx, 1.12, -0.66);
+    porscheGroup.add(hoop);
+  });
+
+  // Center console, dashboard & sporty steering wheel (left-hand drive!)
+  const consoleBox = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.24, 1.18), interiorDarkMat);
+  consoleBox.position.set(0, 0.82, 0.02);
+  porscheGroup.add(consoleBox);
+
+  const dash = new THREE.Mesh(new THREE.BoxGeometry(1.48, 0.22, 0.44), interiorDarkMat);
+  dash.position.set(0, 0.94, 0.56);
+  porscheGroup.add(dash);
+
+  const steeringWheel = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.022, 8, 18), interiorDarkMat);
+  steeringWheel.position.set(0.38, 1.04, 0.34);
+  steeringWheel.rotation.x = 0.32;
+  porscheGroup.add(steeringWheel);
+
+  // Body-colored side mirrors
+  [-1.06, 1.06].forEach((mx) => {
+    const mirror = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), babyBlueMat);
+    mirror.scale.set(1.35, 0.72, 0.9);
+    mirror.position.set(mx, 0.98, 0.62);
     porscheGroup.add(mirror);
   });
 
-  // Four sporty low-profile wheels + alloy rims + gold calipers
-  [
-    [-0.96, 1.32],
-    [0.96, 1.32],
-    [-0.98, -1.32],
-    [0.98, -1.32],
-  ].forEach(([wx, wz]) => {
-    const wheel = new THREE.Group();
-    wheel.position.set(wx, 0.36, wz);
+  // 4. ICONIC 992 REAR DECK GRILLE, FULL-WIDTH LED LIGHTBAR & EXHAUSTS
+  // 992 Vertical black rear engine-intake louvers
+  for (let i = -4; i <= 4; i++) {
+    const slat = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.04, 0.52), trimGlossBlack);
+    slat.position.set(i * 0.11, 1.07, -1.52);
+    slat.rotation.x = -0.18;
+    porscheGroup.add(slat);
+  }
 
-    const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.28, 18), tireMat);
+  // Razor-sharp full-width glowing red 992 LED taillight blade!
+  const lightBar = new THREE.Mesh(new THREE.BoxGeometry(1.86, 0.068, 0.10), taillightMat);
+  lightBar.position.set(0, 0.79, -2.36);
+  porscheGroup.add(lightBar);
+
+  // Subtle rear diffuser & twin oval chrome sports exhausts
+  const diffuser = new THREE.Mesh(new THREE.BoxGeometry(1.76, 0.24, 0.22), trimGlossBlack);
+  diffuser.position.set(0, 0.36, -2.26);
+  porscheGroup.add(diffuser);
+  [-0.46, 0.46].forEach((ex) => {
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.072, 0.18, 12), rimMat);
+    pipe.rotation.x = Math.PI / 2;
+    pipe.scale.set(1.35, 1, 0.85);
+    pipe.position.set(ex, 0.34, -2.36);
+    porscheGroup.add(pipe);
+  });
+
+  // 5. STAGGERED 20"/21" MULTI-SPOKE WHEELS & YELLOW PCCB BRAKE CALIPERS
+  [
+    [-0.98, 1.38, 0.35],
+    [0.98, 1.38, 0.35],
+    [-1.02, -1.32, 0.38],
+    [1.02, -1.32, 0.38],
+  ].forEach(([wx, wz, rad]) => {
+    const wheel = new THREE.Group();
+    wheel.position.set(wx, rad, wz);
+
+    const tire = new THREE.Mesh(new THREE.CylinderGeometry(rad, rad, 0.29, 24), tireMat);
     tire.rotation.z = Math.PI / 2;
     tire.castShadow = true;
     wheel.add(tire);
 
-    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.3, 14), rimMat);
-    rim.rotation.z = Math.PI / 2;
-    wheel.add(rim);
+    // Dark inner wheel barrel
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(rad * 0.72, rad * 0.72, 0.30, 18), trimGlossBlack);
+    barrel.rotation.z = Math.PI / 2;
+    wheel.add(barrel);
 
-    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.31, 0.12, 0.12), caliperMat);
-    caliper.position.set(0, 0.08, -0.06);
+    // Outer silver alloy rim lip + 5 sporty spokes
+    const rimRing = new THREE.Mesh(new THREE.TorusGeometry(rad * 0.68, 0.025, 8, 22), rimMat);
+    rimRing.rotation.y = Math.PI / 2;
+    rimRing.position.x = wx > 0 ? 0.145 : -0.145;
+    wheel.add(rimRing);
+
+    for (let s = 0; s < 5; s++) {
+      const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.03, rad * 1.28, 0.045), rimMat);
+      spoke.rotation.x = (s / 5) * Math.PI;
+      spoke.position.x = wx > 0 ? 0.14 : -0.14;
+      wheel.add(spoke);
+    }
+
+    // Bright yellow PCCB Porsche brake caliper peeking through the spokes!
+    const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.15, 0.09), caliperMat);
+    caliper.position.set(wx > 0 ? 0.08 : -0.08, 0.08, -0.11);
     wheel.add(caliper);
 
     porscheGroup.add(wheel);
   });
 
   campusGroup.add(porscheGroup);
-  obstacles.push({ x: porschePos.x, z: porschePos.z, radius: 2.35 });
+  obstacles.push({ x: porschePos.x, z: porschePos.z, radius: 2.55 });
 
   // 5. ORNAMENTAL CAMPUS TREES & WARM TWILIGHT STREET LAMPS
   const lampPoleMat = new THREE.MeshStandardMaterial({ color: '#2b323b', metalness: 0.7, roughness: 0.35 });
@@ -4608,26 +4767,94 @@ function tryAdvanceStoryBeat() {
   }
 }
 
-// === EVMS CAMPUS PORSCHE 911 CONVERSATION (PACED AS BRANDON WALKS TOWARD FOUNTAIN & BUILDING) ===
-const CAMPUS_BEATS = [
-  { who: 'brandon', text: "Woah, what's that?", duration: 3.6 },
-  { who: 'damonie', text: "Well, it's the least I could do.", duration: 4.2 },
-  { who: 'brandon', text: 'Hell yeah!', duration: 3.4 },
-  { who: 'damonie', text: "Let's create something healthy together.", duration: 5.2 },
-];
+// === CINEMATIC EVMS ARRIVAL & BABY BLUE PORSCHE 911 CUTSCENE ===
+const cutsceneBarsEl = document.getElementById('cutscene-bars');
+const PORSCHE_VIEW_SPOT = new THREE.Vector3(5.0, 0, 4.4);
+const campusCutscene = {
+  active: false,
+  playedOnce: false,
+  t: 0,
+  stage: 0,
+};
 
-let campusStoryIdx = 0;
-let campusStoryCooldown = 5.0;
+function startCampusCutscene() {
+  if (campusCutscene.playedOnce) {
+    showSpeech(brandon, 'You look good, Doc! 🩺✨', 4.0);
+    return;
+  }
+  campusCutscene.active = true;
+  campusCutscene.playedOnce = true;
+  campusCutscene.t = 0;
+  campusCutscene.stage = 0;
+  walkTarget = null;
+  cutsceneBarsEl.classList.add('active');
+  showSpeech(brandon, 'You look good, Doc! 🩺✨', 3.6);
+}
 
-function tryAdvanceCampusBeat() {
-  if (currentAct !== 'campus' || !gameStarted || isTransitioning) return;
-  if (campusStoryIdx >= CAMPUS_BEATS.length || campusStoryCooldown > 0 || activeSpeech) return;
+function updateCampusCutscene(dt, inputDir) {
+  if (!campusCutscene.active) return;
+  campusCutscene.t += dt;
+  const t = campusCutscene.t;
 
-  const beat = CAMPUS_BEATS[campusStoryIdx];
-  campusStoryIdx++;
-  const speaker = beat.who === 'brandon' ? brandon : damonie;
-  showSpeech(speaker, beat.text, beat.duration);
-  campusStoryCooldown = beat.duration + 1.3;
+  // Stage 1 (3.8s): Brandon spots the Baby Blue Porsche 911 & they walk over to it together!
+  if (t >= 3.8 && campusCutscene.stage === 0) {
+    campusCutscene.stage = 1;
+    showSpeech(brandon, "Woah, what's that?", 3.8);
+  }
+
+  // Auto-walk Brandon (& gravitating Damonie!) over to the Baby Blue Porsche 911 during stages 1–2
+  if (campusCutscene.stage >= 1 && campusCutscene.stage <= 2) {
+    const dx = PORSCHE_VIEW_SPOT.x - leader.root.position.x;
+    const dz = PORSCHE_VIEW_SPOT.z - leader.root.position.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist > 0.45) {
+      inputDir.set(dx / dist, 0, dz / dist);
+    }
+  }
+
+  // Smooth cinematic camera glide framing the Baby Blue Porsche 911 & fountain
+  if (t >= 3.8 && t < 15.2) {
+    camYaw = THREE.MathUtils.lerp(camYaw, -0.58, dt * 1.4);
+    camDist = THREE.MathUtils.lerp(camDist, 8.8, dt * 1.4);
+    camPitch = THREE.MathUtils.lerp(camPitch, 0.24, dt * 1.4);
+  }
+
+  // Stage 2 (8.4s): Damonie's reply right beside the Porsche
+  if (t >= 8.4 && campusCutscene.stage === 1) {
+    campusCutscene.stage = 2;
+    showSpeech(damonie, "Well, it's the least I could do.", 3.6);
+    spawnHeart(
+      leader.root.position.clone().add(new THREE.Vector3(0.4, 1.8, 0)),
+      1.1
+    );
+  }
+
+  // Stage 3 (12.2s): Brandon's reaction
+  if (t >= 12.2 && campusCutscene.stage === 2) {
+    campusCutscene.stage = 3;
+    showSpeech(brandon, 'Hell yeah!', 3.0);
+    leader.cozyAnim = 1.8;
+    companion.cozyAnim = 1.8;
+    audio.playCozyChord();
+  }
+
+  // Stage 4 (15.4s): Damonie's closing line as camera glides back toward EVMS doors
+  if (t >= 15.4 && campusCutscene.stage === 3) {
+    campusCutscene.stage = 4;
+    showSpeech(damonie, "Let's create something healthy together.", 4.6);
+  }
+
+  if (t >= 15.4) {
+    camYaw = THREE.MathUtils.lerp(camYaw, -0.15, dt * 1.3);
+    camDist = THREE.MathUtils.lerp(camDist, 11.2, dt * 1.3);
+    camPitch = THREE.MathUtils.lerp(camPitch, 0.28, dt * 1.3);
+  }
+
+  // Hand full control smoothly back to Brandon!
+  if (t >= 19.6) {
+    campusCutscene.active = false;
+    cutsceneBarsEl.classList.remove('active');
+  }
 }
 
 // === TOAST NOTIFICATIONS ===
@@ -4732,13 +4959,8 @@ function enterVirginiaPortal() {
     setTimeout(() => {
       portalFlash.classList.remove('active');
       isTransitioning = false;
-      campusStoryCooldown = 5.0;
       showToast('✨ Welcome to Eastern Virginia Medical School — White Coat Ceremony!', 4.5);
-      showSpeech(
-        brandon,
-        'You look good, Doc! 🩺✨',
-        4.2
-      );
+      startCampusCutscene();
     }, 550);
   }, 650);
 }
@@ -4835,7 +5057,7 @@ scene.add(clickRipple);
 let rippleLife = 0;
 
 function handleTapWalk(clientX, clientY) {
-  if (!gameStarted || isTransitioning || !finaleOverlay.classList.contains('hidden')) return;
+  if (!gameStarted || isTransitioning || campusCutscene.active || !finaleOverlay.classList.contains('hidden')) return;
   ndcPointer.x = (clientX / window.innerWidth) * 2 - 1;
   ndcPointer.y = -(clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(ndcPointer, camera);
@@ -4850,7 +5072,6 @@ function handleTapWalk(clientX, clientY) {
     clickRipple.scale.set(0.6, 0.6, 1);
     rippleLife = 0.75;
     tryAdvanceStoryBeat();
-    tryAdvanceCampusBeat();
   }
 }
 
@@ -5060,9 +5281,6 @@ function animate() {
   if (gameStarted && currentAct === 'forest' && storyCooldown > 0 && !storyLockedForPause) {
     storyCooldown = Math.max(0, storyCooldown - dt);
   }
-  if (gameStarted && currentAct === 'campus' && campusStoryCooldown > 0) {
-    campusStoryCooldown = Math.max(0, campusStoryCooldown - dt);
-  }
 
   // Click/tap golden ground ripple animation
   if (rippleLife > 0) {
@@ -5076,16 +5294,18 @@ function animate() {
   }
 
   // Keyboard camera orbit (Q/R) & zoom (-/=) for effortless laptop/Mac control
-  if (gameStarted && !isTransitioning) {
+  if (gameStarted && !isTransitioning && !campusCutscene.active) {
     if (keys['KeyQ']) camYaw += 1.65 * dt;
     if (keys['KeyR']) camYaw -= 1.65 * dt;
     if (keys['Minus']) camDist = THREE.MathUtils.clamp(camDist + 6.5 * dt, 4.0, 18.5);
     if (keys['Equal']) camDist = THREE.MathUtils.clamp(camDist - 6.5 * dt, 4.0, 18.5);
   }
 
-  // Build movement vector from keyboard OR point-and-click / tap-to-walk destination!
+  // Build movement vector from Cutscene OR keyboard OR point-and-click / tap-to-walk destination!
   const inputDir = new THREE.Vector3();
-  if (gameStarted && !isTransitioning && finaleOverlay.classList.contains('hidden')) {
+  if (campusCutscene.active) {
+    updateCampusCutscene(dt, inputDir);
+  } else if (gameStarted && !isTransitioning && finaleOverlay.classList.contains('hidden')) {
     let f = 0;
     let r = 0;
     if (keys['KeyW'] || keys['ArrowUp']) f += 1;
@@ -5096,7 +5316,6 @@ function animate() {
     if (f !== 0 || r !== 0) {
       walkTarget = null; // Manual keyboard overrides click destination
       tryAdvanceStoryBeat();
-      tryAdvanceCampusBeat();
       const fwdX = -Math.sin(camYaw);
       const fwdZ = -Math.cos(camYaw);
       const rightX = Math.cos(camYaw);
