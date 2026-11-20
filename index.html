@@ -483,6 +483,37 @@ kbd {
   transform: translateY(-2px);
 }
 
+/* Mobile Phone Responsive Polish */
+@media (max-width: 680px) {
+  .hud-top-left {
+    top: 12px;
+    left: 12px;
+    width: 192px;
+    padding: 10px 12px;
+  }
+  .forage-grid {
+    gap: 4px 6px;
+  }
+  .forage-item {
+    font-size: 11px;
+  }
+  .hud-top-right {
+    top: 12px;
+    right: 12px;
+    gap: 6px;
+  }
+  .hud-chip {
+    padding: 7px 10px;
+    font-size: 11.5px;
+  }
+  .intro-card {
+    padding: 26px 22px;
+  }
+  .intro-card h1 {
+    font-size: 38px;
+  }
+}
+
 </style>
   <script type="importmap">
     {
@@ -528,12 +559,13 @@ kbd {
         forage wild treats, befriend one very big fat moose, and see where the forest trail leads.
       </p>
       <div class="intro-keys">
+        <span><kbd>Click / Tap</kbd> Walk Anywhere</span>
         <span><kbd>WASD</kbd> Walk</span>
-        <span><kbd>Shift</kbd> Jog</span>
+        <span><kbd>Drag / Swipe</kbd> Look 360°</span>
         <span><kbd>E</kbd> Forage</span>
         <span><kbd>F</kbd> Feed Moose</span>
         <span><kbd>H</kbd> Pull Close</span>
-        <span><kbd>Tab</kbd> Switch Character</span>
+        <span><kbd>Tab</kbd> Switch Lead</span>
       </div>
       <button id="start-btn" class="primary-btn">Enter the Forest</button>
     </div>
@@ -1159,8 +1191,8 @@ function createMedievalPlaqueTexture(labelText = 'VIRGINIA') {
   return tex;
 }
 
-function createVirginiaPlaqueTexture() {
-  return createMedievalPlaqueTexture('VIRGINIA');
+function createNorfolkPlaqueTexture() {
+  return createMedievalPlaqueTexture('NORFOLK');
 }
 
 function createShenandoahPlaqueTexture() {
@@ -2310,8 +2342,8 @@ function createForestWorld(rootScene) {
     portalGroup.add(block);
   }
 
-  // Prominent Medieval Carved Stone Banner Plaque at the top: "VIRGINIA"
-  const plaqueTex = createVirginiaPlaqueTexture();
+  // Prominent Medieval Carved Stone Banner Plaque at the top: "NORFOLK"
+  const plaqueTex = createNorfolkPlaqueTexture();
   const plaqueBack = new THREE.Mesh(new THREE.BoxGeometry(4.5, 1.15, 0.42), stoneDarkMat);
   plaqueBack.position.set(0, 5.25, 0.22);
   plaqueBack.castShadow = true;
@@ -4193,7 +4225,7 @@ container.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2('#d9b68c', 0.0155);
 
-const camera = new THREE.PerspectiveCamera(54, window.innerWidth / window.innerHeight, 0.1, 260);
+const camera = new THREE.PerspectiveCamera(56, window.innerWidth / window.innerHeight, 0.1, 260);
 
 // === POST-PROCESSING (Bloom + Filmic Output) ===
 const composer = new EffectComposer(renderer);
@@ -4449,8 +4481,9 @@ function enterVirginiaPortal() {
 
     // Frame the iconic Brickell Medical Sciences building & "MD CLASS OF 2031" banner in Golden Hour!
     camYaw = 0;
-    camPitch = 0.24;
-    camDist = 8.4;
+    camPitch = 0.28;
+    camDist = 11.4;
+    walkTarget = null;
 
     // Locked to warm Golden Hour for the EVMS White Coat Ceremony!
     applySceneTheme('campus');
@@ -4499,8 +4532,9 @@ function returnToForest() {
     leader.heading = Math.PI;
     companion.heading = Math.PI;
     camYaw = 0;
-    camPitch = 0.28;
-    camDist = 8.6;
+    camPitch = 0.30;
+    camDist = 11.4;
+    walkTarget = null;
 
     applySceneTheme('forest');
 
@@ -4534,15 +4568,56 @@ function triggerCeremonyFinale() {
   }, 600);
 }
 
-// === INPUT & CAMERA CONTROLS (Mac Trackpad + Mouse + Keyboard) ===
+// === INPUT & CAMERA CONTROLS (Point-and-Click + Touch + Mac Trackpad + Keyboard) ===
 const keys = {};
 let gameStarted = false;
 let camYaw = 0;
-let camPitch = 0.28;
-let camDist = 8.6;
+let camPitch = 0.30;
+let camDist = 11.4;
 let isDragging = false;
+let downMouseX = 0;
+let downMouseY = 0;
 let lastMouseX = 0;
 let lastMouseY = 0;
+let dragMovedDist = 0;
+
+// Point-and-Click / Tap-to-Walk destination & glowing golden ripple marker!
+let walkTarget = null;
+const raycaster = new THREE.Raycaster();
+const ndcPointer = new THREE.Vector2();
+const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+const clickRipple = new THREE.Mesh(
+  new THREE.RingGeometry(0.24, 0.36, 28),
+  new THREE.MeshBasicMaterial({
+    color: '#ffe394',
+    transparent: true,
+    opacity: 0,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  })
+);
+clickRipple.rotation.x = -Math.PI / 2;
+scene.add(clickRipple);
+let rippleLife = 0;
+
+function handleTapWalk(clientX, clientY) {
+  if (!gameStarted || isTransitioning || !finaleOverlay.classList.contains('hidden')) return;
+  ndcPointer.x = (clientX / window.innerWidth) * 2 - 1;
+  ndcPointer.y = -(clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(ndcPointer, camera);
+
+  // Intersect horizontal plane at leader's current height for super reliable clicks everywhere!
+  groundPlane.constant = -leader.root.position.y;
+  const hit = new THREE.Vector3();
+  if (raycaster.ray.intersectPlane(groundPlane, hit)) {
+    walkTarget = new THREE.Vector3(hit.x, 0, hit.z);
+    const groundY = currentAct === 'forest' ? getTerrainHeight(hit.x, hit.z) : 0.1;
+    clickRipple.position.set(hit.x, groundY + 0.08, hit.z);
+    clickRipple.scale.set(0.6, 0.6, 1);
+    rippleLife = 0.75;
+  }
+}
 
 window.addEventListener('keydown', (e) => {
   keys[e.code] = true;
@@ -4565,23 +4640,34 @@ window.addEventListener('keyup', (e) => {
   keys[e.code] = false;
 });
 
+renderer.domElement.style.touchAction = 'none';
 renderer.domElement.addEventListener('pointerdown', (e) => {
   isDragging = true;
+  downMouseX = e.clientX;
+  downMouseY = e.clientY;
   lastMouseX = e.clientX;
   lastMouseY = e.clientY;
+  dragMovedDist = 0;
 });
 
 window.addEventListener('pointermove', (e) => {
   if (!isDragging) return;
   const dx = e.clientX - lastMouseX;
   const dy = e.clientY - lastMouseY;
+  dragMovedDist += Math.hypot(dx, dy);
   lastMouseX = e.clientX;
   lastMouseY = e.clientY;
-  camYaw -= dx * 0.0065;
-  camPitch = THREE.MathUtils.clamp(camPitch + dy * 0.0055, 0.08, 1.15);
+  if (dragMovedDist > 6) {
+    camYaw -= dx * 0.0065;
+    camPitch = THREE.MathUtils.clamp(camPitch + dy * 0.0055, 0.08, 1.15);
+  }
 });
 
-window.addEventListener('pointerup', () => {
+window.addEventListener('pointerup', (e) => {
+  if (isDragging && dragMovedDist < 9) {
+    // Clean click / tap -> walk to that spot!
+    handleTapWalk(e.clientX, e.clientY);
+  }
   isDragging = false;
 });
 
@@ -4592,10 +4678,8 @@ window.addEventListener(
     if (!gameStarted) return;
     e.preventDefault();
     if (e.ctrlKey) {
-      // macOS trackpad pinch-to-zoom
-      camDist = THREE.MathUtils.clamp(camDist + e.deltaY * 0.035, 3.6, 16.0);
+      camDist = THREE.MathUtils.clamp(camDist + e.deltaY * 0.035, 4.0, 18.5);
     } else {
-      // macOS two-finger swipe to look around freely in 360°!
       camYaw -= e.deltaX * 0.0045;
       camPitch = THREE.MathUtils.clamp(camPitch + e.deltaY * 0.0032, 0.08, 1.15);
     }
@@ -4776,15 +4860,26 @@ function animate() {
     if (toastTimer <= 0) toastEl.classList.add('hidden');
   }
 
+  // Click/tap golden ground ripple animation
+  if (rippleLife > 0) {
+    rippleLife = Math.max(0, rippleLife - dt);
+    const prog = 1 - rippleLife / 0.75;
+    const sc = 0.6 + prog * 1.45;
+    clickRipple.scale.set(sc, sc, 1);
+    clickRipple.material.opacity = (1 - prog) * 0.85;
+  } else {
+    clickRipple.material.opacity = 0;
+  }
+
   // Keyboard camera orbit (Q/R) & zoom (-/=) for effortless laptop/Mac control
   if (gameStarted && !isTransitioning) {
     if (keys['KeyQ']) camYaw += 1.65 * dt;
     if (keys['KeyR']) camYaw -= 1.65 * dt;
-    if (keys['Minus']) camDist = THREE.MathUtils.clamp(camDist + 6.5 * dt, 3.6, 16.0);
-    if (keys['Equal']) camDist = THREE.MathUtils.clamp(camDist - 6.5 * dt, 3.6, 16.0);
+    if (keys['Minus']) camDist = THREE.MathUtils.clamp(camDist + 6.5 * dt, 4.0, 18.5);
+    if (keys['Equal']) camDist = THREE.MathUtils.clamp(camDist - 6.5 * dt, 4.0, 18.5);
   }
 
-  // Build movement vector from keyboard relative to camera yaw
+  // Build movement vector from keyboard OR point-and-click / tap-to-walk destination!
   const inputDir = new THREE.Vector3();
   if (gameStarted && !isTransitioning && finaleOverlay.classList.contains('hidden')) {
     let f = 0;
@@ -4795,11 +4890,21 @@ function animate() {
     if (keys['KeyA'] || keys['ArrowLeft']) r -= 1;
 
     if (f !== 0 || r !== 0) {
+      walkTarget = null; // Manual keyboard overrides click destination
       const fwdX = -Math.sin(camYaw);
       const fwdZ = -Math.cos(camYaw);
       const rightX = Math.cos(camYaw);
       const rightZ = -Math.sin(camYaw);
       inputDir.set(fwdX * f + rightX * r, 0, fwdZ * f + rightZ * r).normalize();
+    } else if (walkTarget) {
+      const dx = walkTarget.x - leader.root.position.x;
+      const dz = walkTarget.z - leader.root.position.z;
+      const dist = Math.hypot(dx, dz);
+      if (dist < 0.55) {
+        walkTarget = null;
+      } else {
+        inputDir.set(dx / dist, 0, dz / dist);
+      }
     }
   }
 
@@ -4838,12 +4943,12 @@ function animate() {
   nearestContext = null;
   if (gameStarted && !isTransitioning) {
     if (currentAct === 'forest') {
-      // 1. Check VIRGINIA medieval portal proximity (auto-enter if stepping right into vortex!)
+      // 1. Check NORFOLK medieval portal proximity (auto-enter if stepping right into vortex!)
       const dPortal = leader.root.position.distanceTo(world.portalPos);
       if (dPortal < 1.85) {
         enterVirginiaPortal();
       } else if (dPortal < 4.5) {
-        nearestContext = { kind: 'portal', key: 'E', text: 'Step through the VIRGINIA Portal' };
+        nearestContext = { kind: 'portal', key: 'E', text: 'Step through the NORFOLK Portal' };
       }
 
       // 2. Check nearby forageables
